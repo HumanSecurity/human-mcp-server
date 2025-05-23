@@ -1,0 +1,65 @@
+{
+  "//": "TODO: Change the enforcer name",
+  "name": "@humansecurity/ENFORCER-NAME",
+  "description": "DESCRIPTION",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/types/index.d.ts",
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js",
+      "default": "./lib/cjs/index.js"
+    }
+  },
+  "files": [
+    "lib/**/*"
+  ],
+  "scripts": {
+    "prebuild": "npm run clean",
+    "build": "npm run build:cjs && npm run build:esm && npm run build:dec",
+    "build:cjs": "tsc -p tsconfig.cjs.json && echo '{\"type\":\"commonjs\"}' >> ./lib/cjs/package.json",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:dec": "tsc -p tsconfig.dec.json",
+    "lint": "./node_modules/eslint/bin/eslint.js . --ext .ts",
+    "lint:fix": "./node_modules/eslint/bin/eslint.js . --ext .ts --fix",
+    "pre-commit": "./node_modules/.bin/lint-staged",
+    "prepare": "husky install",
+    "test": "mocha",
+    "clean": "rm -rf lib || true"
+  },
+  "dependencies": {
+    "perimeterx-js-core": "latest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chai": "^4.3.3",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^10.0.0",
+    "@types/sinon": "^10.0.13",
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.0",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "prettier": "^2.7.1",
+    "sinon": "^14.0.1",
+    "ts-essentials": "^9.3.2",
+    "ts-loader": "^9.4.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.4.4"
+  },
+  "lint-staged": {
+    "*.ts": "npm run lint:fix"
+  }
+}
