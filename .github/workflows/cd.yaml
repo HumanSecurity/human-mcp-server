@@ -1,0 +1,59 @@
+name: cd
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  extract_version:
+    runs-on: ubuntu-latest
+    name: Extract release version
+    outputs:
+      version: ${{ steps.version.outputs.value }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+      - name: Get package version
+        id: version
+        run: echo "value=$(node -p -e "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+  create_release:
+    runs-on: ubuntu-latest
+    needs: extract_version
+    name: Create release on GitHub
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - run: gh release create v${{ needs.extract_version.outputs.version }} --generate-notes -t "Version ${{ needs.extract_version.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ github.TOKEN }}
+        shell: bash
+        name: Creates a release in GitHub
+
+  publish:
+    runs-on: ubuntu-latest
+    needs:
+      - create_release
+      - extract_version
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup npmrc
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Publish package
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

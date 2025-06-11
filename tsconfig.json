@@ -6,7 +6,10 @@
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
+    "outDir": "dist",
+    "strict": true,
+    "resolveJsonModule": true
   },
   "include": ["src"],
-  "exclude": ["lib"]
+  "exclude": ["dist", "node_modules"]
 }
