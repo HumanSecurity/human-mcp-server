@@ -1,6 +1,39 @@
+# Node modules
 node_modules/
+
+# Build output
+dist/
+lib/
+build/
+.nyc_output/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDEs and editors
 .idea/
 .vscode/
-lib/
-dist/
-.nyc_output/
+*.sublime-workspace
+*.sublime-project
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+*.lcov
+
+# Environment files
+.env
+.env.*
+
+# Misc
+*.tgz
+*.log
+
+# TypeScript
+*.tsbuildinfo
