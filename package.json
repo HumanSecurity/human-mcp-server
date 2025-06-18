@@ -6,7 +6,8 @@
   "main": "./dist/index.cjs",
   "bin": "./dist/index.cjs",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    ".images/*"
   ],
   "keywords": [
     "mcp",

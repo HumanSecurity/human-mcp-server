@@ -2,13 +2,15 @@
 
 Supercharge your AI workflows with comprehensive cybersecurity intelligence from HUMAN Security. This Model Context Protocol (MCP) server provides access to HUMAN's industry-leading threat detection, attack analysis, and security monitoring capabilities directly within your AI-powered applications.
 
+![](.images/mcp.gif)
+
 ## 🛡️ What You Can Do
 
 **Cyberfraud Protection & Analytics**
+- **Traffic Analysis**: Monitor web and mobile traffic patterns with comprehensive security metrics
 - **Real-time Attack Monitoring**: Track sophisticated attack campaigns with time-series analytics and threat intelligence
 - **Attack Investigation**: Deep-dive into specific attack clusters with detailed forensics and attribution
 - **Account Security**: Investigate suspicious account behavior, fraud patterns, and security incidents
-- **Traffic Analysis**: Monitor web and mobile traffic patterns with comprehensive security metrics
 - **Custom Security Rules**: Manage and audit your custom mitigation policies and security controls
 
 **Code Defender - Client-Side Security**
