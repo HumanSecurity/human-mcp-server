@@ -8,7 +8,7 @@ import { CodeDefenderService } from '../services/codeDefenderService';
 export function createServer() {
     const server = new McpServer(
         {
-            name: 'HUMAN Enforcer MCP Server',
+            name: 'HUMAN Security MCP Server',
             version: '1.0.0',
         },
         {
