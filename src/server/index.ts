@@ -4,12 +4,13 @@ import { registerTools } from '../tools';
 import { HttpClient } from '../utils/httpClient';
 import { CyberfraudService } from '../services/cyberfraudService';
 import { CodeDefenderService } from '../services/codeDefenderService';
+import packageJson from '../../package.json' with { type: 'json' };
 
 export function createServer() {
     const server = new McpServer(
         {
             name: 'HUMAN Security MCP Server',
-            version: '1.0.0',
+            version: packageJson.version,
         },
         {
             capabilities: {
