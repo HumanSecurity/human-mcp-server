@@ -19,15 +19,14 @@ Supercharge your AI workflows with comprehensive cybersecurity intelligence from
 
 ## 🚀 Quick Start
 
-### For Cursor Users
-Add this configuration to your Cursor `mcp.json` file:
+Add this configuration to your MCP server file:
 
 ```json
 {
   "mcpServers": {
     "human-security": {
       "command": "npx",
-      "args": ["-y", "@humansecurity/mcp-server"],
+      "args": ["-y", "@humansecurity/human-mcp-server"],
       "env": {
         "HUMAN_CYBERFRAUD_API_TOKEN": "your-cyberfraud-token",
         "HUMAN_CODE_DEFENDER_API_TOKEN": "your-code-defender-token"
@@ -35,12 +34,6 @@ Add this configuration to your Cursor `mcp.json` file:
     }
   }
 }
-```
-
-### For Other MCP-Compatible Applications
-Install and run the server:
-```bash
-npx @humansecurity/mcp-server
 ```
 
 You'll need API tokens from your HUMAN Security account to access the services. The server automatically detects which services you have access to and enables the corresponding tools.
@@ -58,12 +51,12 @@ You'll need API tokens from your HUMAN Security account to access the services. 
 
 **Ask your AI assistant questions like:**
 
-*"Show me attack trends over the last 24 hours"*
-*"Investigate suspicious activity for account ID XXXXX"*
-*"What third-party scripts are running on our payment pages?"*
-*"Are we PCI DSS compliant based on our current security headers?"*
-*"Analyze the effectiveness of our custom security rules"*
-*"Show me details about attack cluster XXXXX"*
+* *"Show me attack trends over the last 24 hours"*
+* *"Investigate suspicious activity for account ID XXXXX"*
+* *"What third-party scripts are running on our payment pages?"*
+* *"Are we PCI DSS compliant based on our current security headers?"*
+* *"Analyze the effectiveness of our custom security rules"*
+* *"Show me details about attack cluster XXXXX"*
 
 ## 📊 Available Tools
 
@@ -89,7 +82,7 @@ If you only need one service, you can configure just that token:
 {
   "human-security": {
     "command": "npx",
-    "args": ["-y", "@humansecurity/mcp-server"],
+    "args": ["-y", "@humansecurity/human-mcp-server"],
     "env": {
       "HUMAN_CYBERFRAUD_API_TOKEN": "your-token-here"
     }
@@ -102,7 +95,7 @@ If you only need one service, you can configure just that token:
 {
   "human-security": {
     "command": "npx",
-    "args": ["-y", "@humansecurity/mcp-server"],
+    "args": ["-y", "@humansecurity/human-mcp-server"],
     "env": {
       "HUMAN_CODE_DEFENDER_API_TOKEN": "your-token-here"
     }
