@@ -5,7 +5,7 @@ export const CyberfraudAccountInfoInputSchema = z.object({
         .string()
         .min(1, 'accountId is required')
         .describe(
-            '🔍 ACCOUNT LOOKUP: Unique account identifier for investigation and analysis. 🎯 REQUIRED: Must provide valid account ID from your system. ✅ RETURNS: Complete security profile if account exists, minimal response if not found. 💡 USE CASES: Incident response, fraud investigation, customer support, compliance auditing. 🚨 CRITICAL: Response structure depends entirely on account existence - use exists field to determine data availability.',
+            '🔍 ACCOUNT LOOKUP: Unique account identifier for investigation and analysis. 🎯 REQUIRED: The user must provide a valid account ID. This value should not be guessed or assumed. ✅ RETURNS: Complete security profile if account exists, minimal response if not found. 💡 USE CASES: Incident response, fraud investigation, customer support, compliance auditing. 🚨 CRITICAL: Response structure depends entirely on account existence - use exists field to determine data availability.',
         ),
     daysRange: z
         .number()
