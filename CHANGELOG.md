@@ -5,11 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [x.x.x] - xxxx-xx-xx
+## [1.0.0-beta] - 2025-06-19
 
 ### Fixed
 
-* Refactoring
+* Refactoring, description improvements
 * Renamed npm package
 * Readme improvements
 
