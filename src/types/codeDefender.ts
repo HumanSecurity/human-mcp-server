@@ -5,13 +5,13 @@ export const CodeDefenderBaseInputSchema = z.object({
         .array(z.string())
         .min(1, 'At least one appId is required.')
         .describe(
-            '🆔 APPLICATION TARGETING: Array of application identifiers to monitor. 🎯 REQUIRED: Must provide at least one valid app ID. 💡 EXAMPLES: ["PX12345678"] for specific application analysis. 📊 SCOPE: Defines security monitoring boundaries.',
+            '🆔 APPLICATION TARGETING: Array of application identifiers to monitor. 🎯 REQUIRED: The user must provide at least one valid app ID. This value should not be guessed or assumed. 💡 EXAMPLES: ["PX12345678"] for specific application analysis. 📊 SCOPE: Defines security monitoring boundaries.',
         ),
     tld: z
         .array(z.string())
         .min(1, 'At least one top-level domain is required.')
         .describe(
-            '🌐 DOMAIN FILTERING: Array of top-level domains to analyze. 🎯 REQUIRED: Must specify target domains for security monitoring. 💡 EXAMPLES: ["example.com", "anotherexample.com"] for multi-domain analysis. 🔍 SCOPE: Controls domain-specific security assessment.',
+            '🌐 DOMAIN FILTERING: Array of top-level domains to analyze. 🎯 REQUIRED: The user must specify target domains for security monitoring. This value should not be guessed or assumed. 💡 EXAMPLES: ["example.com", "anotherexample.com"] for multi-domain analysis. 🔍 SCOPE: Controls domain-specific security assessment.',
         ),
     from: z
         .number()
