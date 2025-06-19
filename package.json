@@ -1,12 +1,13 @@
 {
-  "name": "@humansecurity/mcp-server",
+  "name": "@humansecurity/human-mcp-server",
   "description": "Model Context Protocol (MCP) server providing comprehensive cybersecurity intelligence from HUMAN Security. Offers real-time attack monitoring, threat detection, fraud prevention, PCI DSS compliance validation, and supply chain security for AI-powered applications.",
   "version": "1.0.0-alpha",
   "type": "module",
   "main": "./dist/index.cjs",
   "bin": "./dist/index.cjs",
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    ".images/*"
   ],
   "keywords": [
     "mcp",

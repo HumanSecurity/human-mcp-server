@@ -1,12 +1,11 @@
 import { Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
 import fetch, { Response } from 'node-fetch';
-import { HTTP_TIMEOUT_MS, MCP_VERSION_HEADER } from './constants';
-import packageJson from '../../package.json' with { type: 'json' };
+import { HTTP_TIMEOUT_MS, MCP_VERSION_HEADER, MCP_VERSION } from './constants';
 
 export class HttpClient {
-    private httpsAgent: HttpsAgent;
-    private httpAgent: HttpAgent;
+    private readonly httpsAgent: HttpsAgent;
+    private readonly httpAgent: HttpAgent;
 
     constructor(
         private apiToken?: string,
@@ -39,7 +38,7 @@ export class HttpClient {
         if (this.apiToken) {
             headers['Authorization'] = `Bearer ${this.apiToken}`;
         }
-        headers[MCP_VERSION_HEADER] = packageJson.version;
+        headers[MCP_VERSION_HEADER] = MCP_VERSION;
         const res = await this.fetchImpl(url, {
             method: options.method || 'GET',
             headers,

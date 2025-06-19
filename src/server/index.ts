@@ -4,12 +4,13 @@ import { registerTools } from '../tools';
 import { HttpClient } from '../utils/httpClient';
 import { CyberfraudService } from '../services/cyberfraudService';
 import { CodeDefenderService } from '../services/codeDefenderService';
+import { MCP_VERSION } from '../utils/constants';
 
 export function createServer() {
     const server = new McpServer(
         {
-            name: 'HUMAN Enforcer MCP Server',
-            version: '1.0.0',
+            name: 'HUMAN Security MCP Server',
+            version: MCP_VERSION,
         },
         {
             capabilities: {
