@@ -29,9 +29,10 @@ export function registerCyberfraudGetAttackReportingOverview(server: McpServer, 
 • clusterId returns single cluster (ignores pagination parameters)
 
 ✅ HIGH-VALUE PATTERNS:
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "2025-06-23T00:00:00Z".
 
 1. BROAD DISCOVERY (START HERE):
-   {"startTime": "recent", "endTime": "recent", "pageSize": 10}
+   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "pageSize": 10}
    → Complete threat landscape overview
 
 2. FOCUSED THREAT ANALYSIS:
@@ -39,11 +40,11 @@ export function registerCyberfraudGetAttackReportingOverview(server: McpServer, 
    → Deep dive into specific attack category
 
 3. CLUSTER DEEP-DIVE:
-   {"clusterId": "ATO-8J8VG", "startTime": "recent", "endTime": "recent"}
+   {"clusterId": "ATO-8J8VG", "startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
    → Complete details for specific attack cluster
 
 4. TIME-WINDOWED ANALYSIS:
-   {"startTime": "6_hours_ago", "endTime": "now", "pageSize": 5}
+   {"startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "pageSize": 5}
    → Recent attack activity focus
 
 5. PAGINATION WORKFLOW:

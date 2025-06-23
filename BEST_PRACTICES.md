@@ -857,7 +857,7 @@ Tool brief description highlighting essential capabilities and primary use cases
    → Deep dive into specific entity with recent activity focus
 
 3. TREND ANALYSIS:
-   {startTime: "24_hours_ago", endTime: "now", pageSize: 50}
+   {startTime: "<ISO_TIME_24_HOURS_AGO>", endTime: "<ISO_TIME_NOW>", pageSize: 50}
    → Comprehensive trend data for pattern identification
 
 ⚠️ TECHNICAL INSIGHTS:

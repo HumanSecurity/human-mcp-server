@@ -29,25 +29,26 @@ export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, 
 • Filter combinations can return zero results (not an error)
 
 ✅ HIGH-VALUE PATTERNS:
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "2025-06-23T00:00:00Z".
 
 1. ATTACK TIMELINE ANALYSIS:
-   {"startTime": "6_hours_ago", "endTime": "now"}
+   {"startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
    → Recent attack progression with 5-min intervals
 
 2. PATTERN DETECTION:
-   {"startTime": "24_hours_ago", "endTime": "now", "threatTypes": ["account-takeover"]}
+   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "threatTypes": ["account-takeover"]}
    → Single threat type evolution over time
 
 3. VOLUME CORRELATION:
-   {"startTime": "12_hours_ago", "endTime": "now", "trafficSources": ["web"]}
+   {"startTime": "<ISO_TIME_12_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "trafficSources": ["web"]}
    → Platform-specific attack intensity tracking
 
 4. BASELINE COMPARISON:
-   {"startTime": "today", "endTime": "now"}
+   {"startTime": "<ISO_TIME_00:00:00_TODAY>", "endTime": "<ISO_TIME_NOW>"}
    → Attack volume vs legitimate traffic ratio
 
 5. CLUSTER EVOLUTION:
-   {"startTime": "recent", "endTime": "now"}
+   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
    → Track how attack clusters develop and persist
 
 ⚠️ ENVIRONMENT NOTES:
