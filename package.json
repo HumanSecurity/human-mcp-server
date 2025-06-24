@@ -35,7 +35,7 @@
     "clean": "rm -rf dist",
     "build": "esbuild --platform=node --bundle --target=es2022 --outfile=dist/index.cjs --banner:js=\"#!/usr/bin/env node\" src/index.ts",
     "preinspect": "npm run build",
-    "inspect": "npx @modelcontextprotocol/inspector -e HUMAN_API_TOKEN=$HUMAN_API_TOKEN npm run start",
+    "inspect": "npx @modelcontextprotocol/inspector -e HUMAN_CYBERFRAUD_API_TOKEN=$HUMAN_CYBERFRAUD_API_TOKEN -e HUMAN_CODE_DEFENDER_API_TOKEN=$HUMAN_CODE_DEFENDER_API_TOKEN npm run start",
     "prestart": "npm run build",
     "prebuild": "npm run clean && npm run typecheck",
     "postbuild": "chmod +x dist/index.cjs",

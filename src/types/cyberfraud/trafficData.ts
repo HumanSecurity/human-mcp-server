@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../../utils/constants';
 
 export const TrafficDataSourceEnum = z.enum(['web', 'mobile'], {
     description:
@@ -82,12 +83,12 @@ export const TrafficDataInputSchema = z.object({
     startTime: z
         .string()
         .describe(
-            '⏰ TIME RANGE START: ISO 8601 datetime string defining analysis period beginning. 🎯 FORMATS: "2024-01-15T10:00:00Z". ⚠️ CONSTRAINT: Must be within API limits for data retention. 💡 STRATEGY: Use shorter windows for real-time monitoring, longer periods for trend analysis and pattern detection.',
+            `⏰ TIME RANGE START: ISO 8601 datetime string defining analysis period beginning. 🎯 FORMAT: "${DATE_FORMAT_EXAMPLE_START}". ⚠️ CONSTRAINT: Must be within API limits for data retention. 💡 STRATEGY: Use shorter windows for real-time monitoring, longer periods for trend analysis and pattern detection.`,
         ),
     endTime: z
         .string()
         .describe(
-            '🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMATS: "2024-01-15T16:00:00Z". ⚠️ CONSTRAINT: Must be after startTime. 💡 STRATEGY: Use "now" for live dashboards, specific timestamps for historical analysis and incident investigation.',
+            `🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMAT: "${DATE_FORMAT_EXAMPLE_END}". ⚠️ CONSTRAINT: Must be after startTime. 💡 STRATEGY: Use current time for live dashboards, specific timestamps for historical analysis and incident investigation.`,
         ),
     source: z
         .array(TrafficDataSourceEnum)
