@@ -792,7 +792,7 @@ startTime: z
 endTime: z
     .string()
     .describe(
-        '🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMAT: "2024-01-15T16:00:00Z". ⚠️ CONSTRAINT: Must be after startTime and within API limits. 💡 STRATEGY: Use "now" for real-time monitoring, specific timestamps for historical incident analysis.',
+        '🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMAT: "2024-01-15T16:00:00Z". ⚠️ CONSTRAINT: Must be after startTime and within API limits. 💡 STRATEGY: Use current time for real-time monitoring, specific timestamps for historical incident analysis.',
     ),
 
 // Current status time
@@ -849,7 +849,7 @@ Tool brief description highlighting essential capabilities and primary use cases
 ✅ HIGH-VALUE PATTERNS:
 
 1. BROAD DISCOVERY:
-   {startTime: "recent", endTime: "now", pageSize: 10}
+   {startTime: "<ISO_TIME_3_HOURS_AGO>", endTime: "<ISO_TIME_NOW>", pageSize: 10}
    → Complete overview with manageable detail for initial assessment
 
 2. FOCUSED ANALYSIS:

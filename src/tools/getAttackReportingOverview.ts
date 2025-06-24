@@ -7,6 +7,7 @@ import {
 import { mcpToolHandler } from '../utils/mcpToolHandler';
 import { makeStructuredResponseSchema } from '../utils/makeStructuredResponseSchema';
 import type { CyberfraudService } from '../services/cyberfraudService';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../utils/constants';
 
 export function registerCyberfraudGetAttackReportingOverview(server: McpServer, cyberfraudService: CyberfraudService) {
     server.registerTool(
@@ -29,10 +30,10 @@ export function registerCyberfraudGetAttackReportingOverview(server: McpServer, 
 • clusterId returns single cluster (ignores pagination parameters)
 
 ✅ HIGH-VALUE PATTERNS:
-• "startTime" and "endTime" should be in ISO 8601 format, e.g. "2025-06-23T00:00:00Z".
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "${DATE_FORMAT_EXAMPLE_END}".
 
 1. BROAD DISCOVERY (START HERE):
-   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "pageSize": 10}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "pageSize": 10}
    → Complete threat landscape overview
 
 2. FOCUSED THREAT ANALYSIS:
@@ -40,11 +41,11 @@ export function registerCyberfraudGetAttackReportingOverview(server: McpServer, 
    → Deep dive into specific attack category
 
 3. CLUSTER DEEP-DIVE:
-   {"clusterId": "ATO-8J8VG", "startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
+   {"clusterId": "ATO-8J8VG", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Complete details for specific attack cluster
 
 4. TIME-WINDOWED ANALYSIS:
-   {"startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "pageSize": 5}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "pageSize": 5}
    → Recent attack activity focus
 
 5. PAGINATION WORKFLOW:

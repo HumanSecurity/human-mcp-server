@@ -7,6 +7,7 @@ import {
 import { mcpToolHandler } from '../utils/mcpToolHandler';
 import { makeStructuredResponseSchema } from '../utils/makeStructuredResponseSchema';
 import type { CyberfraudService } from '../services/cyberfraudService';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../utils/constants';
 
 export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, cyberfraudService: CyberfraudService) {
     server.registerTool(
@@ -29,26 +30,26 @@ export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, 
 • Filter combinations can return zero results (not an error)
 
 ✅ HIGH-VALUE PATTERNS:
-• "startTime" and "endTime" should be in ISO 8601 format, e.g. "2025-06-23T00:00:00Z".
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "${DATE_FORMAT_EXAMPLE_END}".
 
 1. ATTACK TIMELINE ANALYSIS:
-   {"startTime": "<ISO_TIME_6_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Recent attack progression with 5-min intervals
 
 2. PATTERN DETECTION:
-   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "threatTypes": ["account-takeover"]}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "threatTypes": ["account-takeover"]}
    → Single threat type evolution over time
 
 3. VOLUME CORRELATION:
-   {"startTime": "<ISO_TIME_12_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>", "trafficSources": ["web"]}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "trafficSources": ["web"]}
    → Platform-specific attack intensity tracking
 
 4. BASELINE COMPARISON:
-   {"startTime": "<ISO_TIME_00:00:00_TODAY>", "endTime": "<ISO_TIME_NOW>"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Attack volume vs legitimate traffic ratio
 
 5. CLUSTER EVOLUTION:
-   {"startTime": "<ISO_TIME_24_HOURS_AGO>", "endTime": "<ISO_TIME_NOW>"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Track how attack clusters develop and persist
 
 ⚠️ ENVIRONMENT NOTES:

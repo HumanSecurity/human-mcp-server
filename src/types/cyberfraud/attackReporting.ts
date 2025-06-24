@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../../utils/constants';
 
 export const CYBERFRAUD_TRAFFIC_TYPE_VALUES = ['paid', 'organic'] as const;
 export const CYBERFRAUD_THREAT_TYPE_VALUES = ['account-takeover', 'scraping', 'transaction-abuse', 'other'] as const;
@@ -12,12 +13,12 @@ export const CyberfraudBaseInputSchema = z.object({
     startTime: z
         .string()
         .describe(
-            '⏰ TIME RANGE START: ISO 8601 datetime string defining analysis period beginning. 🎯 FORMAT: "2024-01-15T10:00:00Z". ⚠️ CONSTRAINT: Must be within last 2 weeks (API enforced). 💡 STRATEGY: Use shorter windows (6-24 hours) for granular attack timelines, longer periods (1-3 days) for pattern analysis.',
+            `⏰ TIME RANGE START: ISO 8601 datetime string defining analysis period beginning. 🎯 FORMAT: "${DATE_FORMAT_EXAMPLE_START}". ⚠️ CONSTRAINT: Must be within last 2 weeks (API enforced). 💡 STRATEGY: Use shorter windows (6-24 hours) for granular attack timelines, longer periods (1-3 days) for pattern analysis.`,
         ),
     endTime: z
         .string()
         .describe(
-            '🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMAT: "2024-01-15T16:00:00Z". ⚠️ CONSTRAINT: Must be after startTime and within API limits. 💡 STRATEGY: Use "now" for real-time monitoring, specific timestamps for historical incident analysis.',
+            `🏁 TIME RANGE END: ISO 8601 datetime string defining analysis period conclusion. 🎯 FORMAT: "${DATE_FORMAT_EXAMPLE_END}". ⚠️ CONSTRAINT: Must be after startTime and within API limits. 💡 STRATEGY: Use current time for real-time monitoring, specific timestamps for historical incident analysis.`,
         ),
     trafficTypes: z
         .array(CyberfraudTrafficTypeEnum)
