@@ -51,7 +51,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.13.0",
     "node-fetch": "^3.3.2",
-    "zod": "^3.25.23"
+    "zod": "^3.25.67"
   },
   "author": "HUMAN Security",
   "license": "MIT",
