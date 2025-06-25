@@ -1,7 +1,7 @@
 {
   "name": "@humansecurity/human-mcp-server",
   "description": "Model Context Protocol (MCP) server providing comprehensive cybersecurity intelligence from HUMAN Security. Offers real-time attack monitoring, threat detection, fraud prevention, PCI DSS compliance validation, and supply chain security for AI-powered applications.",
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta1",
   "type": "module",
   "main": "./dist/index.cjs",
   "bin": "./dist/index.cjs",
@@ -35,7 +35,7 @@
     "clean": "rm -rf dist",
     "build": "esbuild --platform=node --bundle --target=es2022 --outfile=dist/index.cjs --banner:js=\"#!/usr/bin/env node\" src/index.ts",
     "preinspect": "npm run build",
-    "inspect": "npx @modelcontextprotocol/inspector -e HUMAN_API_TOKEN=$HUMAN_API_TOKEN npm run start",
+    "inspect": "npx @modelcontextprotocol/inspector -e HUMAN_CYBERFRAUD_API_TOKEN=$HUMAN_CYBERFRAUD_API_TOKEN -e HUMAN_CODE_DEFENDER_API_TOKEN=$HUMAN_CODE_DEFENDER_API_TOKEN npm run start",
     "prestart": "npm run build",
     "prebuild": "npm run clean && npm run typecheck",
     "postbuild": "chmod +x dist/index.cjs",
@@ -49,9 +49,9 @@
     "coverage": "c8 npm test"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.11.4",
+    "@modelcontextprotocol/sdk": "^1.13.0",
     "node-fetch": "^3.3.2",
-    "zod": "^3.25.23"
+    "zod": "^3.25.67"
   },
   "author": "HUMAN Security",
   "license": "MIT",
@@ -64,7 +64,7 @@
     "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": "^10.0.10",
     "@types/sinon": "^17.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.32.1",
     "c8": "^10.1.3",
     "chai": "^5.2.0",
@@ -74,10 +74,10 @@
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
     "husky": "^9.1.7",
-    "lint-staged": "^16.0.0",
+    "lint-staged": "^16.1.2",
     "mocha": "^11.4.0",
     "prettier": "^3.5.3",
-    "sinon": "^20.0.0",
+    "sinon": "^21.0.0",
     "ts-essentials": "^10.0.4",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.2",

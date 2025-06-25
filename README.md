@@ -2,7 +2,7 @@
 
 Supercharge your AI workflows with comprehensive cybersecurity intelligence from HUMAN Security. This Model Context Protocol (MCP) server provides access to HUMAN's industry-leading threat detection, attack analysis, and security monitoring capabilities directly within your AI-powered applications.
 
-![](.images/mcp.gif)
+![](https://unpkg.com/@humansecurity/human-mcp-server/.images/mcp.gif)
 
 ## 🛡️ What You Can Do
 

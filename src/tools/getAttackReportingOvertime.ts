@@ -7,6 +7,7 @@ import {
 import { mcpToolHandler } from '../utils/mcpToolHandler';
 import { makeStructuredResponseSchema } from '../utils/makeStructuredResponseSchema';
 import type { CyberfraudService } from '../services/cyberfraudService';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../utils/constants';
 
 export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, cyberfraudService: CyberfraudService) {
     server.registerTool(
@@ -29,25 +30,26 @@ export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, 
 • Filter combinations can return zero results (not an error)
 
 ✅ HIGH-VALUE PATTERNS:
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "${DATE_FORMAT_EXAMPLE_END}".
 
 1. ATTACK TIMELINE ANALYSIS:
-   {"startTime": "6_hours_ago", "endTime": "now"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Recent attack progression with 5-min intervals
 
 2. PATTERN DETECTION:
-   {"startTime": "24_hours_ago", "endTime": "now", "threatTypes": ["account-takeover"]}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "threatTypes": ["account-takeover"]}
    → Single threat type evolution over time
 
 3. VOLUME CORRELATION:
-   {"startTime": "12_hours_ago", "endTime": "now", "trafficSources": ["web"]}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "trafficSources": ["web"]}
    → Platform-specific attack intensity tracking
 
 4. BASELINE COMPARISON:
-   {"startTime": "today", "endTime": "now"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Attack volume vs legitimate traffic ratio
 
 5. CLUSTER EVOLUTION:
-   {"startTime": "recent", "endTime": "now"}
+   {"startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
    → Track how attack clusters develop and persist
 
 ⚠️ ENVIRONMENT NOTES:

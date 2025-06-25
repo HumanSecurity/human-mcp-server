@@ -3,6 +3,7 @@ import { TrafficDataInputSchema, TrafficDataInput, TrafficDataOutputSchema } fro
 import { mcpToolHandler } from '../utils/mcpToolHandler';
 import { makeStructuredResponseSchema } from '../utils/makeStructuredResponseSchema';
 import type { CyberfraudService } from '../services/cyberfraudService';
+import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../utils/constants';
 
 export function registerCyberfraudGetTrafficData(server: McpServer, cyberfraudService: CyberfraudService) {
     server.registerTool(
@@ -32,6 +33,7 @@ When combining "overtime" + "tops" parameters, the API exhibits unexpected aggre
 • Result: Appears as time-series but is actually front-loaded aggregate data
 
 CORRECT USAGE:
+• "startTime" and "endTime" should be in ISO 8601 format, e.g. "${DATE_FORMAT_EXAMPLE_START}".
 • Path analysis: Use "tops": ["path"] for path breakdowns (no "count")
 • Time-series: Use "overtime" without "tops" 
 • Attack types: Use "count" + "tops": ["incidents"] for totals
