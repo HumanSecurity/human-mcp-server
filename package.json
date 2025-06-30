@@ -78,7 +78,7 @@
     "mocha": "^11.4.0",
     "prettier": "^3.5.3",
     "sinon": "^21.0.0",
-    "ts-essentials": "^10.0.4",
+    "ts-essentials": "^10.1.1",
     "ts-loader": "^9.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
