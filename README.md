@@ -1,8 +1,11 @@
 # HUMAN Security MCP Server
 
+[![npm version](https://badge.fury.io/js/%40humansecurity%2Fhuman-mcp-server.svg)](https://www.npmjs.com/package/@humansecurity/human-mcp-server)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Supercharge your AI workflows with comprehensive cybersecurity intelligence from HUMAN Security. This Model Context Protocol (MCP) server provides access to HUMAN's industry-leading threat detection, attack analysis, and security monitoring capabilities directly within your AI-powered applications.
 
-![](https://unpkg.com/@humansecurity/human-mcp-server/.images/mcp.gif)
+![](https://raw.githubusercontent.com/HumanSecurity/human-mcp-server/main/.images/mcp.gif)
 
 ## 🛡️ What You Can Do
 

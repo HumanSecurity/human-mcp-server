@@ -6,8 +6,7 @@
   "main": "./dist/index.cjs",
   "bin": "./dist/index.cjs",
   "files": [
-    "dist/**/*",
-    ".images/*"
+    "dist/**/*"
   ],
   "keywords": [
     "mcp",
@@ -52,6 +51,14 @@
     "@modelcontextprotocol/sdk": "^1.16.0",
     "node-fetch": "^3.3.2",
     "zod": "^3.25.67"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HumanSecurity/human-mcp-server.git"
+  },
+  "homepage": "https://github.com/HumanSecurity/human-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/HumanSecurity/human-mcp-server/issues"
   },
   "author": "HUMAN Security",
   "license": "MIT",
