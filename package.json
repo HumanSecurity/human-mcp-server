@@ -75,7 +75,7 @@
     "eslint-plugin-prettier": "^5.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "mocha": "^11.4.0",
+    "mocha": "^11.7.1",
     "prettier": "^3.6.2",
     "sinon": "^21.0.0",
     "ts-essentials": "^10.1.1",
