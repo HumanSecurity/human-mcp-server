@@ -80,15 +80,15 @@ export function registerCyberfraudGetAttackReportingOverview(server: McpServer, 
 4. PAGINATE: Use page/pageSize to explore large datasets efficiently
 
 Response provides detailed cluster intelligence optimized for incident response, threat hunting, and security analysis with actionable threat indicators and comprehensive attack attribution.`,
-            inputSchema: CyberfraudOverviewInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CyberfraudOverviewOutputSchema).shape,
+            inputSchema: CyberfraudOverviewInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CyberfraudOverviewOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Attack Reporting Overview',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CyberfraudOverviewParams) =>
-            mcpToolHandler(async () => cyberfraudService.getAttackReportingOverview(params)),
+        (async (params: CyberfraudOverviewParams, extra: any) =>
+            mcpToolHandler(async () => cyberfraudService.getAttackReportingOverview(params))) as any,
     );
 }

@@ -80,15 +80,15 @@ Key Features:
 • Sensitive transaction pattern analysis and fraud detection
 
 Response provides detailed account intelligence optimized for incident response, fraud investigation, customer support, and compliance auditing with actionable threat indicators and comprehensive security assessment.`,
-            inputSchema: CyberfraudAccountInfoInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CyberfraudAccountInfoOutputSchema).shape,
+            inputSchema: CyberfraudAccountInfoInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CyberfraudAccountInfoOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Account Info',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CyberfraudAccountInfoInput) =>
-            mcpToolHandler(async () => cyberfraudService.getAccountInfo(params)),
+        (async (params: CyberfraudAccountInfoInput, extra: any) =>
+            mcpToolHandler(async () => cyberfraudService.getAccountInfo(params))) as any,
     );
 }
