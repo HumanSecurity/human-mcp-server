@@ -56,6 +56,39 @@ You'll need API tokens from your HUMAN Security account to access the services. 
 - **`HUMAN_CYBERFRAUD_API_TOKEN`**: Enables attack monitoring, traffic analysis, account investigation, and custom rules management
 - **`HUMAN_CODE_DEFENDER_API_TOKEN`**: Enables supply chain monitoring, PCI compliance, and client-side security analysis
 
+## 🐳 Run with Docker
+
+If you prefer Docker over NPM, run the MCP server container directly:
+
+```bash
+docker run --rm -i \
+  -e HUMAN_CYBERFRAUD_API_TOKEN=<value> \
+  -e HUMAN_CODE_DEFENDER_API_TOKEN=<value> \
+  us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest
+```
+
+To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), replace the NPM command with a Docker invocation:
+
+```json
+{
+  "mcpServers": {
+    "human-security": {
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "-e", "HUMAN_CYBERFRAUD_API_TOKEN",
+        "-e", "HUMAN_CODE_DEFENDER_API_TOKEN",
+        "us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest"
+      ],
+      "env": {
+        "HUMAN_CYBERFRAUD_API_TOKEN": "your-cyberfraud-token",
+        "HUMAN_CODE_DEFENDER_API_TOKEN": "your-code-defender-token"
+      }
+    }
+  }
+}
+```
+
 ### Optional Configuration
 - **`HUMAN_API_HOST`**: Use a different API endpoint (default: `api.humansecurity.com`)
 - **`HUMAN_API_VERSION`**: Specify API version (default: `v1`)
