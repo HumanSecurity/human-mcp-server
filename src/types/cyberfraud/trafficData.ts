@@ -1,27 +1,28 @@
 import { z } from 'zod';
 import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../../utils/constants';
 
-export const TrafficDataSourceEnum = z.enum(['web', 'mobile'], {
-    description:
+export const TrafficDataSourceEnum = z
+    .enum(['web', 'mobile'])
+    .describe(
         'Platform filter: ["web"], ["mobile"], or ["web","mobile"]. NOTE: Mobile traffic may be minimal/absent in some environments (observed 99.999% web dominance). Use both for complete coverage, individual for platform-specific analysis.',
-});
-export const TrafficDataOvertimeEnum = z.enum(
-    ['legitimate', 'blocked', 'potentialBlock', 'whitelist', 'blacklist', 'goodKnownBots', 'captchaSolved'],
-    {
-        description:
-            'TIME-SERIES ANALYSIS: Returns intervals with ~20min timestamps for trend visualization. ❌ MUTUALLY EXCLUSIVE with "count" parameter. 🚨 CRITICAL: DO NOT combine with "tops" - causes misleading aggregation with all data front-loaded into first interval. ✅ BEST FOR: Attack timelines, trend charts, pattern detection. EXAMPLE: {"overtime": ["blocked"]} → Attack volume over time. COMBINE WITH: filters for focus, but NEVER with "tops".',
-    },
-);
-export const TrafficDataTopsEnum = z.enum(['incidents', 'path'], {
-    description:
+    );
+export const TrafficDataOvertimeEnum = z
+    .enum(['legitimate', 'blocked', 'potentialBlock', 'whitelist', 'blacklist', 'goodKnownBots', 'captchaSolved'])
+    .describe(
+        'TIME-SERIES ANALYSIS: Returns intervals with ~20min timestamps for trend visualization. ❌ MUTUALLY EXCLUSIVE with "count" parameter. 🚨 CRITICAL: DO NOT combine with "tops" - causes misleading aggregation with all data front-loaded into first interval. ✅ BEST FOR: Attack timelines, trend charts, pattern detection. EXAMPLE: {"overtime": ["blocked"]} → Attack volume over time. COMBINE WITH: filters for focus, but NEVER with "tops".',
+    );
+export const TrafficDataTopsEnum = z
+    .enum(['incidents', 'path'])
+    .describe(
         '🔄 RESPONSE TRANSFORMER: Completely changes response structure from aggregates to detailed breakdowns. 🚨 CRITICAL: DO NOT combine with "overtime" - causes misleading aggregation where all historical data appears in first interval with zeros after. ⚠️ CRITICAL INSIGHTS: "incidents" reveals attack classification (Bot Behavior, Spoof, Bad Reputation, etc.), "path" shows URL-specific targeting. WITHOUT tops: Aggregate totals. WITH tops: Individual breakdowns per category. ✅ SAFE USAGE: Combine with "count" only.',
-});
-export const TrafficDataTrafficEnum = z.enum(['blocked', 'blacklist', 'potentialBlock'], {
-    description:
+    );
+export const TrafficDataTrafficEnum = z
+    .enum(['blocked', 'blacklist', 'potentialBlock'])
+    .describe(
         'SECURITY-ONLY FILTER: Shows EXCLUSIVELY blocked/suspicious traffic. COMPLEMENTS count/overtime metrics, does NOT replace them. ✅ USE CASE: Pure security analysis, threat-focused reporting. EXCLUDES: All legitimate traffic. COMBINE WITH: Any count/overtime metrics for security-centric view.',
-});
-export const TrafficDataPageTypeEnum = z.enum(
-    [
+    );
+export const TrafficDataPageTypeEnum = z
+    .enum([
         'login',
         'login_attempt',
         'checkout',
@@ -32,14 +33,12 @@ export const TrafficDataPageTypeEnum = z.enum(
         'apiCall',
         'resource',
         'mobileUserAgents',
-    ],
-    {
-        description:
-            'PAGE TYPE FILTER: Focuses analysis on specific user journeys. ⚠️ SCOPE WARNING: Very restrictive (observed 87% data reduction). USE CASES: Login security analysis, checkout protection, API endpoint monitoring. COMBINE WITH: Security metrics for targeted threat analysis.',
-    },
-);
-export const TrafficDataCountEnum = z.enum(
-    [
+    ])
+    .describe(
+        'PAGE TYPE FILTER: Focuses analysis on specific user journeys. ⚠️ SCOPE WARNING: Very restrictive (observed 87% data reduction). USE CASES: Login security analysis, checkout protection, API endpoint monitoring. COMBINE WITH: Security metrics for targeted threat analysis.',
+    );
+export const TrafficDataCountEnum = z
+    .enum([
         'legitimate',
         'potentialBlock',
         'blocked',
@@ -49,12 +48,10 @@ export const TrafficDataCountEnum = z.enum(
         'captchaSolved',
         'mobile',
         'web',
-    ],
-    {
-        description:
-            'AGGREGATE ANALYSIS: Returns total counts across entire time range. ❌ MUTUALLY EXCLUSIVE with "overtime" parameter. ⚠️ LIMITATION: Will NOT return path breakdowns even with tops=["path"] - returns aggregate totals only. ✅ BEST FOR: Dashboards, KPIs, executive summaries. EXAMPLE: {"count": ["legitimate", "blocked"]} → Simple totals.',
-    },
-);
+    ])
+    .describe(
+        'AGGREGATE ANALYSIS: Returns total counts across entire time range. ❌ MUTUALLY EXCLUSIVE with "overtime" parameter. ⚠️ LIMITATION: Will NOT return path breakdowns even with tops=["path"] - returns aggregate totals only. ✅ BEST FOR: Dashboards, KPIs, executive summaries. EXAMPLE: {"count": ["legitimate", "blocked"]} → Simple totals.',
+    );
 
 export const TrafficDataMetricsEnrichmentSchema = z
     .object({

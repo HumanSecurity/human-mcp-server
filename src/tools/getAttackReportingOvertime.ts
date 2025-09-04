@@ -94,15 +94,15 @@ export function registerCyberfraudGetAttackReportingOvertime(server: McpServer, 
    - Correlate with external events or system changes
 
 Response provides time-series attack intelligence optimized for temporal analysis, incident response, and security operations center monitoring with quantifiable attack progression metrics.`,
-            inputSchema: CyberfraudOvertimeInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CyberfraudOvertimeOutputSchema).shape,
+            inputSchema: CyberfraudOvertimeInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CyberfraudOvertimeOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Attack Reporting Overtime',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CyberfraudOvertimeParams) =>
-            mcpToolHandler(async () => cyberfraudService.getAttackReportingOvertime(params)),
+        (async (params: CyberfraudOvertimeParams, extra: any) =>
+            mcpToolHandler(async () => cyberfraudService.getAttackReportingOvertime(params))) as any,
     );
 }

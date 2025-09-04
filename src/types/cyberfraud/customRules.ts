@@ -27,7 +27,7 @@ export const CyberfraudCustomRuleSchema = z
                 '📝 RULE DOCUMENTATION: Detailed explanation of rule purpose, business justification, and context. Critical for compliance auditing, knowledge transfer, and policy maintenance. May be empty for legacy rules.',
             ),
         conditions: z
-            .record(z.any())
+            .record(z.string(), z.unknown())
             .optional()
             .describe(
                 '🎯 MATCHING LOGIC: Complex conditional structure defining when rule applies. Contains operator-based logic ($and, $or, $eq, $in, $re) with conditionType specifications (socketIps, userAgent, path, domain, socketIpASN). Critical for understanding rule scope and impact analysis.',

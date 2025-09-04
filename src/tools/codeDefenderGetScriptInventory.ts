@@ -94,15 +94,15 @@ export function registerCodeDefenderGetScriptInventory(server: McpServer, codeDe
    - Executive reporting with quantifiable security metrics
 
 Response provides detailed script intelligence optimized for PCI DSS compliance, supply chain security management, and operational governance with comprehensive risk assessment and vendor attribution.`,
-            inputSchema: CodeDefenderScriptInventoryInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CodeDefenderGetScriptInventoryOutputSchema).shape,
+            inputSchema: CodeDefenderScriptInventoryInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CodeDefenderGetScriptInventoryOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Code Defender Script Inventory',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CodeDefenderScriptInventoryParams) =>
-            mcpToolHandler(async () => codeDefenderService.getCodeDefenderScriptInventory(params)),
+        (async (params: CodeDefenderScriptInventoryParams, extra: any) =>
+            mcpToolHandler(async () => codeDefenderService.getCodeDefenderScriptInventory(params))) as any,
     );
 }

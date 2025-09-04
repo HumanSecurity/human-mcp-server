@@ -94,15 +94,15 @@ export function registerCodeDefenderGetHeaderInventory(server: McpServer, codeDe
    - Executive reporting with quantifiable security metrics
 
 Response provides detailed security header intelligence optimized for PCI DSS compliance, security posture assessment, and operational governance with comprehensive policy validation and configuration analysis.`,
-            inputSchema: CodeDefenderHeaderInventoryInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CodeDefenderGetHeaderInventoryOutputSchema).shape,
+            inputSchema: CodeDefenderHeaderInventoryInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CodeDefenderGetHeaderInventoryOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Code Defender Header Inventory',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CodeDefenderHeaderInventoryParams) =>
-            mcpToolHandler(async () => codeDefenderService.getCodeDefenderHeaderInventory(params)),
+        (async (params: CodeDefenderHeaderInventoryParams, extra: any) =>
+            mcpToolHandler(async () => codeDefenderService.getCodeDefenderHeaderInventory(params))) as any,
     );
 }

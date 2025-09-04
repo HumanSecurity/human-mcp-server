@@ -90,15 +90,15 @@ export function registerCodeDefenderGetIncidents(server: McpServer, codeDefender
    - Page type correlation for sensitive area protection validation
 
 Response provides detailed incident intelligence optimized for security operations, incident response, compliance monitoring, and forensic investigation with actionable threat indicators and comprehensive attack attribution.`,
-            inputSchema: CodeDefenderIncidentsInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(CodeDefenderGetIncidentsOutputSchema).shape,
+            inputSchema: CodeDefenderIncidentsInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(CodeDefenderGetIncidentsOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Code Defender Incidents',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: CodeDefenderIncidentsParams) =>
-            mcpToolHandler(async () => codeDefenderService.getCodeDefenderIncidents(params)),
+        (async (params: CodeDefenderIncidentsParams, extra: any) =>
+            mcpToolHandler(async () => codeDefenderService.getCodeDefenderIncidents(params))) as any,
     );
 }

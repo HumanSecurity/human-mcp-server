@@ -85,13 +85,13 @@ export function registerCyberfraudGetCustomRules(server: McpServer, cyberfraudSe
 
 Response provides complete custom security rule inventory optimized for policy management, compliance auditing, security posture assessment, and operational monitoring with detailed rule metadata and configuration analysis.`,
             inputSchema: {},
-            outputSchema: makeStructuredResponseSchema(CyberfraudCustomRulesOutputSchema).shape,
+            outputSchema: makeStructuredResponseSchema(CyberfraudCustomRulesOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Custom Rules',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async () => mcpToolHandler(async () => cyberfraudService.getCustomRules()),
+        (async (extra: any) => mcpToolHandler(async () => cyberfraudService.getCustomRules())) as any,
     );
 }

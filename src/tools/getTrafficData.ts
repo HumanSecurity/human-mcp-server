@@ -75,14 +75,15 @@ CORRECT USAGE:
 • "source": Platform filter (web/mobile)
 
 Response provides structured data optimized for security dashboards, threat analysis, and executive reporting with quantifiable metrics and actionable intelligence.`,
-            inputSchema: TrafficDataInputSchema.shape,
-            outputSchema: makeStructuredResponseSchema(TrafficDataOutputSchema).shape,
+            inputSchema: TrafficDataInputSchema.shape as any,
+            outputSchema: makeStructuredResponseSchema(TrafficDataOutputSchema).shape as any,
             annotations: {
                 title: 'HUMAN Get Traffic Data',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
         },
-        async (params: TrafficDataInput) => mcpToolHandler(async () => cyberfraudService.getTrafficData(params)),
+        (async (params: TrafficDataInput, extra: any) =>
+            mcpToolHandler(async () => cyberfraudService.getTrafficData(params))) as any,
     );
 }
