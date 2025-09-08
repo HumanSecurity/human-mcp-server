@@ -16,7 +16,7 @@ COPY tsconfig.json .
 RUN npm run build
 RUN rm -rf src
 
-LABEL com.googleapis.cloudmarketplace.product.service.name="services/human-mcp-server"
+LABEL com.googleapis.cloudmarketplace.product.service.name="services/human-mcp-server.endpoints.px-gcp-marketplace-prod.cloud.goog"
 
 # Set entrypoint
 ENTRYPOINT ["npm", "run", "start"]
