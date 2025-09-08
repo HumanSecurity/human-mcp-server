@@ -1,3 +1,4 @@
+import process from 'process';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { registerTools } from '../tools';
@@ -52,6 +53,15 @@ export function createServer() {
             server.connect(transport).then(() => {
                 console.error('MCP server started...');
             });
+
+            const shutdown = () => {
+                server.close().then(() => {
+                    console.error('MCP server shut down.');
+                });
+            };
+
+            process.on('SIGINT', shutdown);
+            process.on('SIGTERM', shutdown);
         },
     };
 }
