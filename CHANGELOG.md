@@ -5,16 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.1.0] - 2025-09-08
+## [1.0.1] - 2025-09-08
 
 ### Added
 
-* Release as Docker image
-* Graceful shutdown on SIGINT and SIGTERM
+* Docker container support with Google Cloud Marketplace compatibility
+* Graceful shutdown on SIGINT and SIGTERM signals
+* Multi-platform Docker images (linux/amd64, linux/arm64)
+* Required marketplace annotation for service identification
 
 ### Changed
 
-* Upgraded dependencies
+* Upgraded dependencies to latest versions
 
 ## [1.0.0] - 2025-07-22
 
