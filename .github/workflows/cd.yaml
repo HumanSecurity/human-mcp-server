@@ -92,7 +92,5 @@ jobs:
           annotations: |
             index:com.googleapis.cloudmarketplace.product.service.name=services/human-mcp-server.endpoints.px-gcp-marketplace-prod.cloud.goog
           tags: |
-            us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:${{ needs.extract_version.outputs.version }}
-            us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest
             us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:${{ needs.extract_version.outputs.version }}
             us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:latest
