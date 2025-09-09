@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 * Docker container registry location
-
+* 
 ## [1.0.2] - 2025-09-08
 
 ### Fixed
