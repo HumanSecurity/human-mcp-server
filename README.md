@@ -64,7 +64,7 @@ If you prefer Docker over NPM, run the MCP server container directly:
 docker run --rm -i \
   -e HUMAN_CYBERFRAUD_API_TOKEN=<value> \
   -e HUMAN_CODE_DEFENDER_API_TOKEN=<value> \
-  us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest
+  us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:latest
 ```
 
 To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), replace the NPM command with a Docker invocation:
@@ -78,7 +78,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
         "run", "--rm", "-i",
         "-e", "HUMAN_CYBERFRAUD_API_TOKEN",
         "-e", "HUMAN_CODE_DEFENDER_API_TOKEN",
-        "us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest"
+        "us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:latest"
       ],
       "env": {
         "HUMAN_CYBERFRAUD_API_TOKEN": "your-cyberfraud-token",

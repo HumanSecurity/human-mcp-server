@@ -71,9 +71,9 @@ jobs:
         uses: 'google-github-actions/auth@6fc4af4b145ae7821d527454aa9bd537d1f2dc5f'
         with:
           token_format: 'access_token'
-          project_id: 'hmn-registry'
-          service_account: ${{ vars.SERVICE_ACCOUNT }}
-          workload_identity_provider: ${{ vars.WORKLOAD_IDENTITY_PROVIDER }}
+          project_id: 'hmn-registry-public'
+          service_account: ${{ secrets.SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
 
       - name: Docker Auth
         id: docker-auth
@@ -92,5 +92,5 @@ jobs:
           annotations: |
             index:com.googleapis.cloudmarketplace.product.service.name=services/human-mcp-server.endpoints.px-gcp-marketplace-prod.cloud.goog
           tags: |
-            us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:${{ needs.extract_version.outputs.version }}
-            us-docker.pkg.dev/hmn-registry/docker-public/human-mcp-server:latest
+            us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:${{ needs.extract_version.outputs.version }}
+            us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:latest
