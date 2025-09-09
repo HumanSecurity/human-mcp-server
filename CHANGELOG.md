@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [1.0.4] - 2025-09-09
 
-### Changed
+### Fixed
 
 * Fixed service account permissions
 
