@@ -23,10 +23,15 @@ Supercharge your AI workflows with comprehensive cybersecurity intelligence from
 - **Custom Security Rules**: Manage and audit your custom mitigation policies and security controls
 
 **Code Defender - Client-Side Security**
-- **Supply Chain Protection**: Monitor third-party scripts and vendors on your payment and sensitive pages
-- **PCI DSS Compliance**: Automated compliance validation and security assessment for payment environments
-- **Security Incident Response**: Track client-side attacks, XSS attempts, and code injection threats
-- **HTTP Security Headers**: Comprehensive security posture analysis and misconfiguration detection
+- **Client-Side Supply Chain Protection**: Monitor first- and third-party scripts and vendors on your payment and sensitive pages
+- **PCI DSS Compliance**: Streamline PCI DSS compliance and confirm that your site is not susceptible to attacks from scripts
+- **Security Incident Monitoring**: Track client-side attacks, e-skimming attempts, and code injection threats
+- **HTTP Security-Impacting Headers**: Monitor and alert personnel to changes to security-impacting HTTP headers
+
+## 🔑 Prerequisites
+
+* If running with NPM, download and install [Node.js](https://nodejs.org/en/download).
+* If running with Docker, download and install [Docker](https://www.docker.com/get-started/).
 
 ## 🚀 Quick Start
 
@@ -58,7 +63,7 @@ You'll need API tokens from your HUMAN Security account to access the services. 
 
 ## 🐳 Run with Docker
 
-If you prefer Docker over NPM, run the MCP server container directly:
+If you prefer to use Docker over NPM, run the MCP server container directly:
 
 ```bash
 docker run --rm -i \
@@ -101,7 +106,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 * *"Show me attack trends over the last 24 hours"*
 * *"Investigate suspicious activity for account ID XXXXX"*
 * *"What third-party scripts are running on our payment pages?"*
-* *"Are we PCI DSS compliant based on our current security headers?"*
+* *"Show me the scripts and headers in my PCI inventory"*
 * *"Analyze the effectiveness of our custom security rules"*
 * *"Show me details about attack cluster XXXXX"*
 
@@ -116,7 +121,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 
 ### Code Defender Security
 - **Security Incidents**: Client-side attack detection and investigation
-- **Script Inventory**: Third-party script monitoring and PCI compliance
+- **Script Inventory**: First- and third-party script monitoring and PCI compliance
 - **Header Inventory**: HTTP security header analysis and optimization
 
 ## 🔗 Integration Options
@@ -154,8 +159,8 @@ If you only need one service, you can configure just that token:
 
 - **Documentation**: [HUMAN Security Documentation](https://docs.humansecurity.com)
 - **API Tokens**:
-  - [Cyberfraud](https://docs.humansecurity.com/applications-and-accounts/reference/api-authentication#getting-a-token-for-account-defender-bot-defender-or-credential-intelligence)
-  - [Code Defender](https://docs.humansecurity.com/applications-and-accounts/reference/api-authentication#getting-a-token-for-code-defender-or-pci-dss)
+  - [Cyberfraud](https://docs.humansecurity.com/applications/api-authentication#getting-a-token-for-the-account-defender-adaptive-feedback-bot-defender-or-credential-intelligence-api)
+  - [Code Defender](https://docs.humansecurity.com/applications/api-authentication#getting-a-token-for-the-code-defender-or-pci-dss-api)
 - **Technical Support**: Available through your HUMAN Security support channels
 
 ## 📄 License
