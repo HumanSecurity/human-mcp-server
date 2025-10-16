@@ -745,10 +745,12 @@ export const CodeDefenderGetAccountSettingsOutputSchema = z
             .describe(
                 '📦 APPLICATIONS: Complete list of Code Defender applications for your account. Use these to discover valid appId values and their associated host domains (tld).',
             )
+            .nullable()
             .optional(),
         accountName: z
             .string()
             .describe('🏢 ACCOUNT NAME: Name of the HUMAN account. Useful for labeling and contextual display.')
+            .nullable()
             .optional(),
         alerts: z
             .array(
@@ -814,6 +816,7 @@ export const CodeDefenderGetAccountSettingsOutputSchema = z
             .describe(
                 '🔔 ALERTS: Configured alert definitions and routing, useful for understanding operational coverage across apps and domains.',
             )
+            .nullable()
             .optional(),
     })
     .passthrough();
