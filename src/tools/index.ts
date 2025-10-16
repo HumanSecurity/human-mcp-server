@@ -6,6 +6,7 @@ import { registerCyberfraudGetAccountInfo } from './getAccountInfo';
 import { registerCodeDefenderGetIncidents } from './codeDefenderGetIncidents';
 import { registerCodeDefenderGetScriptInventory } from './codeDefenderGetScriptInventory';
 import { registerCodeDefenderGetHeaderInventory } from './codeDefenderGetHeaderInventory';
+import { registerCodeDefenderGetAccountSettings } from './codeDefenderGetAccountSettings';
 import type { CyberfraudService } from '../services/cyberfraudService';
 import type { CodeDefenderService } from '../services/codeDefenderService';
 import { registerCyberfraudGetTrafficData } from './getTrafficData';
@@ -31,5 +32,6 @@ export function registerTools(
         registerCodeDefenderGetIncidents(server, services.codeDefenderService);
         registerCodeDefenderGetScriptInventory(server, services.codeDefenderService);
         registerCodeDefenderGetHeaderInventory(server, services.codeDefenderService);
+        registerCodeDefenderGetAccountSettings(server, services.codeDefenderService);
     }
 }

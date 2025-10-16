@@ -8,6 +8,7 @@ import type {
 } from '../types/codeDefender';
 import { HUMAN_API_BASE } from '../utils/constants';
 import type { HttpClient } from '../utils/httpClient';
+import type { CodeDefenderGetAccountSettingsResponse } from '../types/codeDefender';
 
 const API_BASE = `${HUMAN_API_BASE}/code-defender`;
 
@@ -46,5 +47,11 @@ export class CodeDefenderService {
         const url = buildQueryUrl(`${API_BASE}/pci/inventory/headers`, params as Record<string, any>);
         const res = await this.http.request(url);
         return (await res.json()) as CodeDefenderGetHeaderInventoryResponse;
+    }
+
+    async getCodeDefenderAccountSettings(): Promise<CodeDefenderGetAccountSettingsResponse> {
+        const url = `${API_BASE}/account-settings`;
+        const res = await this.http.request(url);
+        return (await res.json()) as CodeDefenderGetAccountSettingsResponse;
     }
 }

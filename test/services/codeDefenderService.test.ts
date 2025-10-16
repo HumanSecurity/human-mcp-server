@@ -71,4 +71,17 @@ describe('CodeDefenderService', () => {
         expect(url).to.include('tld=c');
         expect(url).to.not.include('take=');
     });
+
+    it('getCodeDefenderAccountSettings calls httpClient and returns parsed response', async () => {
+        const fakeResponse = { accountName: 'HUMAN Security' };
+        httpClient.request.resolves({ json: async () => fakeResponse, ok: true });
+        const result = await service.getCodeDefenderAccountSettings();
+        expect(httpClient.request.calledOnce).to.be.true;
+        expect(result).to.equal(fakeResponse);
+    });
+
+    it('getCodeDefenderAccountSettings propagates httpClient.request error', async () => {
+        httpClient.request.rejects(new Error('network fail'));
+        await expect(service.getCodeDefenderAccountSettings()).to.be.rejectedWith('network fail');
+    });
 });

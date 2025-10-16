@@ -666,3 +666,156 @@ export const CodeDefenderGetHeaderInventoryOutputSchema = z
     .passthrough();
 
 export type CodeDefenderGetHeaderInventoryResponse = z.infer<typeof CodeDefenderGetHeaderInventoryOutputSchema>;
+
+// Account Settings (Code Defender)
+export const CodeDefenderGetAccountSettingsOutputSchema = z
+    .object({
+        applications: z
+            .array(
+                z
+                    .object({
+                        app_id: z
+                            .string()
+                            .describe(
+                                '🆔 APPLICATION ID: Unique identifier of the Code Defender application (e.g., "PXabc123"). ✅ USE THIS to populate appId for other Code Defender tools.',
+                            )
+                            .optional(),
+                        name: z
+                            .string()
+                            .describe(
+                                '🏷️ APPLICATION NAME: Human-readable name for the application in your HUMAN account.',
+                            )
+                            .optional(),
+                        enabled: z
+                            .boolean()
+                            .describe(
+                                '✅ APPLICATION ENABLED: Indicates whether the application is enabled in Code Defender.',
+                            )
+                            .optional(),
+                        hostDomains: z
+                            .array(
+                                z
+                                    .object({
+                                        domain: z
+                                            .string()
+                                            .describe(
+                                                '🌐 HOST DOMAIN: Domain associated with this application (e.g., "example.com"). ✅ USE THIS to populate tld for other Code Defender tools.',
+                                            )
+                                            .optional(),
+                                        last_created_baseline: z
+                                            .string()
+                                            .describe(
+                                                '📅 LAST CREATED BASELINE: Timestamp/string representing when a baseline was last created for this domain (used by Code Defender baselining).',
+                                            )
+                                            .optional(),
+                                    })
+                                    .passthrough(),
+                            )
+                            .describe(
+                                '🗺️ HOST DOMAINS: List of domains mapped to this application. Pick from here to set the tld for other Code Defender tools.',
+                            )
+                            .optional(),
+                        csm_enabled: z
+                            .boolean()
+                            .describe(
+                                '🧠 CLIENT-SIDE MONITORING ENABLED: Whether client-side monitoring (sensor) is enabled for this application.',
+                            )
+                            .optional(),
+                        sensor_version: z
+                            .string()
+                            .describe(
+                                '🔢 SENSOR VERSION: Version of the deployed Code Defender sensor (e.g., "4.1.1").',
+                            )
+                            .optional(),
+                        muvs: z
+                            .record(z.any())
+                            .describe(
+                                '🔧 MUVS: Miscellaneous configuration/metadata values for the application (opaque map).',
+                            )
+                            .optional(),
+                        account_name: z
+                            .string()
+                            .describe(
+                                '🏢 ACCOUNT NAME (PER APP): Account name context as reflected at the application level.',
+                            )
+                            .optional(),
+                    })
+                    .passthrough(),
+            )
+            .describe(
+                '📦 APPLICATIONS: Complete list of Code Defender applications for your account. Use these to discover valid appId values and their associated host domains (tld).',
+            )
+            .optional(),
+        accountName: z
+            .string()
+            .describe('🏢 ACCOUNT NAME: Name of the HUMAN account. Useful for labeling and contextual display.')
+            .optional(),
+        alerts: z
+            .array(
+                z
+                    .object({
+                        name: z.string().describe('🔔 ALERT NAME: Friendly name of the configured alert.').optional(),
+                        type: z
+                            .string()
+                            .describe('📮 ALERT TYPE: Delivery channel for the alert (e.g., "email", "slack").')
+                            .optional(),
+                        notifications: z
+                            .array(
+                                z
+                                    .object({
+                                        app_id: z
+                                            .string()
+                                            .describe(
+                                                '🆔 ALERT APPLICATION ID: The application targeted by this alert notification.',
+                                            )
+                                            .optional(),
+                                        host_domain: z
+                                            .string()
+                                            .describe(
+                                                '🌐 ALERT HOST DOMAIN: The domain targeted by this alert notification.',
+                                            )
+                                            .optional(),
+                                        notification_levels: z
+                                            .object({
+                                                high: z
+                                                    .boolean()
+                                                    .describe(
+                                                        '🚨 HIGH SEVERITY: Whether high-severity notifications are enabled.',
+                                                    )
+                                                    .optional(),
+                                                medium: z
+                                                    .boolean()
+                                                    .describe(
+                                                        '⚠️ MEDIUM SEVERITY: Whether medium-severity notifications are enabled.',
+                                                    )
+                                                    .optional(),
+                                                low: z
+                                                    .boolean()
+                                                    .describe(
+                                                        'ℹ️ LOW SEVERITY: Whether low-severity notifications are enabled.',
+                                                    )
+                                                    .optional(),
+                                            })
+                                            .passthrough()
+                                            .describe(
+                                                '🔕 NOTIFICATION LEVELS: Granular alert level enablement for this app/domain pairing.',
+                                            )
+                                            .optional(),
+                                    })
+                                    .passthrough(),
+                            )
+                            .describe(
+                                '📣 NOTIFICATIONS: Per-application and per-domain alert routing and severity configuration.',
+                            )
+                            .optional(),
+                    })
+                    .passthrough(),
+            )
+            .describe(
+                '🔔 ALERTS: Configured alert definitions and routing, useful for understanding operational coverage across apps and domains.',
+            )
+            .optional(),
+    })
+    .passthrough();
+
+export type CodeDefenderGetAccountSettingsResponse = z.infer<typeof CodeDefenderGetAccountSettingsOutputSchema>;
