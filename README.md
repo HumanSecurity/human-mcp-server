@@ -159,8 +159,8 @@ If you only need one service, you can configure just that token:
 
 - **Documentation**: [HUMAN Security Documentation](https://docs.humansecurity.com)
 - **API Tokens**:
-  - [Cyberfraud](https://docs.humansecurity.com/applications/api-authentication#getting-a-token-for-the-account-defender-adaptive-feedback-bot-defender-or-credential-intelligence-api)
-  - [Code Defender](https://docs.humansecurity.com/applications/api-authentication#getting-a-token-for-the-code-defender-or-pci-dss-api)
+  - [Cyberfraud](https://docs.humansecurity.com/applications/reference/authentication)
+  - [Code Defender](https://docs.humansecurity.com/applications/reference/authentication#getting-a-token-for-the-code-defender-or-pci-dss-api)
 - **Technical Support**: Available through your HUMAN Security support channels
 
 ## 📄 License
