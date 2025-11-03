@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: '24.x'
       - name: Get package version
         id: version
         run: echo "value=$(node -p -e "require('./package.json').version")" >> "$GITHUB_OUTPUT"
@@ -50,8 +50,10 @@ jobs:
       - name: Setup npmrc
         uses: actions/setup-node@v6
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: Update npm
+        run: npm install -g npm@11.6.2
       - name: Install dependencies
         run: npm install
       - name: Build
