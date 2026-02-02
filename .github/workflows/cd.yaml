@@ -75,7 +75,7 @@ jobs:
 
       - name: Docker Auth
         id: docker-auth
-        uses: 'docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567'
+        uses: 'docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9'
         with:
           username: 'oauth2accesstoken'
           password: '${{ steps.auth.outputs.access_token }}'
