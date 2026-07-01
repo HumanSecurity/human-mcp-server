@@ -38,9 +38,6 @@ export class HttpClient {
         if (this.apiToken) {
             headers['Authorization'] = `Bearer ${this.apiToken}`;
         }
-        if (options.body !== undefined) {
-            headers['Content-Type'] = 'application/json';
-        }
         headers[MCP_VERSION_HEADER] = MCP_VERSION;
         const res = await this.fetchImpl(url, {
             method: options.method || 'GET',

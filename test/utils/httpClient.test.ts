@@ -58,20 +58,6 @@ describe('HttpClient', () => {
         expect(args.body).to.equal(JSON.stringify({ foo: 'bar' }));
     });
 
-    it('sets Content-Type application/json when body is present', async () => {
-        fetchStub.resolves(new MockResponse('{}', { status: 200 }));
-        await client.request(url, { method: 'POST', body: { foo: 'bar' } });
-        const headers = fetchStub.firstCall.args[1].headers;
-        expect(headers['Content-Type']).to.equal('application/json');
-    });
-
-    it('does not set Content-Type when body is absent', async () => {
-        fetchStub.resolves(new MockResponse('{}', { status: 200 }));
-        await client.request(url);
-        const headers = fetchStub.firstCall.args[1].headers;
-        expect(headers['Content-Type']).to.be.undefined;
-    });
-
     it('adds Authorization header if apiToken is set', async () => {
         fetchStub.resolves(new MockResponse('{}', { status: 200 }));
         await client.request(url);
