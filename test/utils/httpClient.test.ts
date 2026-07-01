@@ -56,6 +56,7 @@ describe('HttpClient', () => {
         const args = fetchStub.firstCall.args[1];
         expect(args.method).to.equal('POST');
         expect(args.body).to.equal(JSON.stringify({ foo: 'bar' }));
+        expect(args.headers['Content-Type']).to.equal('application/json');
     });
 
     it('adds Authorization header if apiToken is set', async () => {

@@ -9,8 +9,12 @@ import type {
     CyberfraudOverviewResponse,
     CyberfraudAccountInfoResponse,
     CyberfraudCustomRulesResponse,
-    TrafficDataInput,
-    TrafficDataResponse,
+    TrafficOvertimeInput,
+    TrafficOvertimeResponse,
+    TrafficMetricsInput,
+    TrafficMetricsResponse,
+    TrafficTopsInput,
+    TrafficTopsResponse,
 } from '../types/cyberfraud';
 
 const API_BASE = `${HUMAN_API_BASE}/cyberfraud`;
@@ -27,43 +31,40 @@ function buildAttackReportingUrl(endpoint: string, params: Record<string, any>) 
     return `${API_BASE}/attack-reporting${endpoint}?${queryParams.toString()}`;
 }
 
-function buildTrafficDataQuery(params: {
-    from: number;
-    to: number;
-    appId?: string[];
-    source?: string[];
-    overtime?: string[];
-    tops?: string[];
-    traffic?: string[];
-    pageType?: string[];
-    count?: string[];
-    withoutTotals?: boolean;
-    metricsEnrichment?: any;
+function buildTrafficDashboardUrl(endpoint: string, from: number, to: number) {
+    const queryParams = new URLSearchParams();
+    queryParams.append('from', from.toString());
+    queryParams.append('to', to.toString());
+    return `${API_BASE}/traffic${endpoint}?${queryParams.toString()}`;
+}
+
+function buildTrafficTimeRange(startTime: string, endTime: string) {
+    const clamped = clampAttackReportingTimes(startTime, endTime);
+    return {
+        from: Math.floor(new Date(clamped.startTime).getTime() / 1000),
+        to: Math.floor(new Date(clamped.endTime).getTime() / 1000),
+    };
+}
+
+function buildTrafficDashboardBody(params: {
+    trafficSource: string[];
+    filters?: Record<string, unknown>;
+    searchQuery?: Record<string, unknown>[];
+    seriesFields?: string[];
+    limit?: number;
+    includeNulls?: boolean;
 }) {
-    const query = new URLSearchParams();
-    query.append('from', params.from.toString());
-    query.append('to', params.to.toString());
-    const sources = params.source && params.source.length > 0 ? params.source : ['web', 'mobile'];
-    sources.forEach((s) => query.append('source[]', s));
-    if (params.appId) params.appId.forEach((id) => query.append('appId[]', id));
-    const allOvertime = [
-        'legitimate',
-        'blocked',
-        'potentialBlock',
-        'whitelist',
-        'blacklist',
-        'goodKnownBots',
-        'captchaSolved',
-    ];
-    const overtime = params.overtime && params.overtime.length > 0 ? params.overtime : allOvertime;
-    overtime.forEach((o) => query.append('overtime[]', o));
-    if (params.tops) params.tops.forEach((t) => query.append('tops[]', t));
-    if (params.traffic) params.traffic.forEach((t) => query.append('traffic[]', t));
-    if (params.pageType) params.pageType.forEach((p) => query.append('pageType[]', p));
-    if (params.count) params.count.forEach((c) => query.append('count[]', c));
-    if (params.withoutTotals) query.append('withoutTotals', 'true');
-    if (params.metricsEnrichment) query.append('metricsEnrichment', JSON.stringify(params.metricsEnrichment));
-    return `${API_BASE}/traffic-data?${query.toString()}`;
+    const body: Record<string, unknown> = {
+        trafficSource: params.trafficSource,
+    };
+
+    if (params.filters) body.filters = params.filters;
+    if (params.searchQuery) body.searchQuery = params.searchQuery;
+    if (params.seriesFields) body.seriesFields = params.seriesFields;
+    if (params.limit !== undefined) body.limit = params.limit;
+    if (params.includeNulls !== undefined) body.includeNulls = params.includeNulls;
+
+    return body;
 }
 
 export class CyberfraudService {
@@ -101,13 +102,36 @@ export class CyberfraudService {
         return (await res.json()) as CyberfraudCustomRulesResponse;
     }
 
-    async getTrafficData(params: TrafficDataInput): Promise<TrafficDataResponse> {
-        const { startTime, endTime, ...rest } = params;
-        const clamped = clampAttackReportingTimes(startTime, endTime);
-        const from = Math.floor(new Date(clamped.startTime).getTime() / 1000);
-        const to = Math.floor(new Date(clamped.endTime).getTime() / 1000);
-        const url = buildTrafficDataQuery({ from, to, ...rest });
-        const res = await this.http.request(url);
-        return (await res.json()) as TrafficDataResponse;
+    async getTrafficOvertime(params: TrafficOvertimeInput): Promise<TrafficOvertimeResponse> {
+        const { startTime, endTime, trafficSource, filters, searchQuery, seriesFields } = params;
+        const { from, to } = buildTrafficTimeRange(startTime, endTime);
+        const url = buildTrafficDashboardUrl('/overtime', from, to);
+        const body = buildTrafficDashboardBody({ trafficSource, filters, searchQuery, seriesFields });
+        const res = await this.http.request(url, { method: 'POST', body });
+        return (await res.json()) as TrafficOvertimeResponse;
+    }
+
+    async getTrafficMetrics(params: TrafficMetricsInput): Promise<TrafficMetricsResponse> {
+        const { startTime, endTime, trafficSource, filters, searchQuery } = params;
+        const { from, to } = buildTrafficTimeRange(startTime, endTime);
+        const url = buildTrafficDashboardUrl('/metrics', from, to);
+        const body = buildTrafficDashboardBody({ trafficSource, filters, searchQuery });
+        const res = await this.http.request(url, { method: 'POST', body });
+        return (await res.json()) as TrafficMetricsResponse;
+    }
+
+    async getTrafficTops(params: TrafficTopsInput): Promise<TrafficTopsResponse> {
+        const { startTime, endTime, field, trafficSource, filters, searchQuery, limit, includeNulls } = params;
+        const { from, to } = buildTrafficTimeRange(startTime, endTime);
+        const url = buildTrafficDashboardUrl(`/tops/${encodeURIComponent(field)}`, from, to);
+        const body = buildTrafficDashboardBody({
+            trafficSource,
+            filters,
+            searchQuery,
+            limit,
+            includeNulls,
+        });
+        const res = await this.http.request(url, { method: 'POST', body });
+        return (await res.json()) as TrafficTopsResponse;
     }
 }

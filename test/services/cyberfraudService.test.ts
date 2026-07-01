@@ -105,4 +105,88 @@ describe('CyberfraudService', () => {
         const url = httpClient.request.firstCall.args[0];
         expect(url).to.include('/overview/cid123');
     });
+
+    it('getTrafficOvertime calls httpClient with POST and returns parsed response', async () => {
+        const fakeResponse = { result: true, content: { results: [] } };
+        httpClient.request.resolves({ json: async () => fakeResponse, ok: true });
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+        const params = {
+            startTime,
+            endTime,
+            trafficSource: ['web', 'mobile'],
+            filters: { trafficTags: ['blocked'] },
+            seriesFields: ['knownBot'],
+        };
+        const result = await service.getTrafficOvertime(params as any);
+        expect(httpClient.request.calledOnce).to.be.true;
+        const [url, options] = httpClient.request.firstCall.args;
+        expect(url).to.include('/cyberfraud/traffic/overtime?');
+        expect(url).to.include('from=');
+        expect(url).to.include('to=');
+        expect(options.method).to.equal('POST');
+        expect(options.body).to.deep.equal({
+            trafficSource: ['web', 'mobile'],
+            filters: { trafficTags: ['blocked'] },
+            seriesFields: ['knownBot'],
+        });
+        expect(result).to.equal(fakeResponse);
+    });
+
+    it('getTrafficMetrics calls httpClient with POST and returns parsed response', async () => {
+        const fakeResponse = { result: true, content: { results: { total: 100 } } };
+        httpClient.request.resolves({ json: async () => fakeResponse, ok: true });
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+        const params = {
+            startTime,
+            endTime,
+            trafficSource: ['web'],
+        };
+        const result = await service.getTrafficMetrics(params as any);
+        expect(httpClient.request.calledOnce).to.be.true;
+        const [url, options] = httpClient.request.firstCall.args;
+        expect(url).to.include('/cyberfraud/traffic/metrics?');
+        expect(options.method).to.equal('POST');
+        expect(options.body).to.deep.equal({ trafficSource: ['web'] });
+        expect(result).to.equal(fakeResponse);
+    });
+
+    it('getTrafficTops calls httpClient with POST and encoded field in URL', async () => {
+        const fakeResponse = { result: true, content: { results: [{ value: 'US', count: 10 }] } };
+        httpClient.request.resolves({ json: async () => fakeResponse, ok: true });
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+        const params = {
+            startTime,
+            endTime,
+            field: 'country',
+            trafficSource: ['web', 'mobile'],
+            limit: 5,
+            includeNulls: true,
+        };
+        const result = await service.getTrafficTops(params as any);
+        expect(httpClient.request.calledOnce).to.be.true;
+        const [url, options] = httpClient.request.firstCall.args;
+        expect(url).to.include('/cyberfraud/traffic/tops/country?');
+        expect(options.method).to.equal('POST');
+        expect(options.body).to.deep.equal({
+            trafficSource: ['web', 'mobile'],
+            limit: 5,
+            includeNulls: true,
+        });
+        expect(result).to.equal(fakeResponse);
+    });
+
+    it('getTrafficOvertime propagates httpClient.request error', async () => {
+        httpClient.request.rejects(new Error('network fail'));
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+        const params = { startTime, endTime, trafficSource: ['web'] };
+        await expect(service.getTrafficOvertime(params as any)).to.be.rejectedWith('network fail');
+    });
 });
