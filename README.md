@@ -23,10 +23,15 @@ Supercharge your AI workflows with comprehensive cybersecurity intelligence from
 - **Custom Security Rules**: Manage and audit your custom mitigation policies and security controls
 
 **Code Defender - Client-Side Security**
-- **Supply Chain Protection**: Monitor third-party scripts and vendors on your payment and sensitive pages
-- **PCI DSS Compliance**: Automated compliance validation and security assessment for payment environments
-- **Security Incident Response**: Track client-side attacks, XSS attempts, and code injection threats
-- **HTTP Security Headers**: Comprehensive security posture analysis and misconfiguration detection
+- **Client-Side Supply Chain Protection**: Monitor first- and third-party scripts and vendors on your payment and sensitive pages
+- **PCI DSS Compliance**: Streamline PCI DSS compliance and confirm that your site is not susceptible to attacks from scripts
+- **Security Incident Monitoring**: Track client-side attacks, e-skimming attempts, and code injection threats
+- **HTTP Security-Impacting Headers**: Monitor and alert personnel to changes to security-impacting HTTP headers
+
+## 🔑 Prerequisites
+
+* If running with NPM, download and install [Node.js](https://nodejs.org/en/download).
+* If running with Docker, download and install [Docker](https://www.docker.com/get-started/).
 
 ## 🚀 Quick Start
 
@@ -58,7 +63,7 @@ You'll need API tokens from your HUMAN Security account to access the services. 
 
 ## 🐳 Run with Docker
 
-If you prefer Docker over NPM, run the MCP server container directly:
+If you prefer to use Docker over NPM, run the MCP server container directly:
 
 ```bash
 docker run --rm -i \
@@ -93,6 +98,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 - **`HUMAN_API_HOST`**: Use a different API endpoint (default: `api.humansecurity.com`)
 - **`HUMAN_API_VERSION`**: Specify API version (default: `v1`)
 - **`HTTP_TIMEOUT_MS`**: Request timeout in milliseconds (default: `30000`)
+- **`HUMAN_TRAFFIC_API_BASE`**: Override the base URL for traffic data endpoints. Useful for local development against a pxPortal instance (e.g. `http://localhost:3000/api/v1/botDefender/traffic`). When not set, defaults to the standard HUMAN API base.
 
 ## 💡 Usage Examples
 
@@ -101,14 +107,14 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 * *"Show me attack trends over the last 24 hours"*
 * *"Investigate suspicious activity for account ID XXXXX"*
 * *"What third-party scripts are running on our payment pages?"*
-* *"Are we PCI DSS compliant based on our current security headers?"*
+* *"Show me the scripts and headers in my PCI inventory"*
 * *"Analyze the effectiveness of our custom security rules"*
 * *"Show me details about attack cluster XXXXX"*
 
 ## 📊 Available Tools
 
 ### Cyberfraud Protection
-- **Traffic Data**: Comprehensive traffic analytics with security metrics
+- **Traffic Data**: Comprehensive traffic analytics with overtime time-series, aggregated metrics, and ranked tops breakdowns
 - **Attack Reporting (Overtime)**: Time-series attack analytics and trend analysis
 - **Attack Reporting (Overview)**: Detailed attack cluster intelligence and forensics
 - **Account Information**: Individual account security analysis and incident tracking
@@ -116,7 +122,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 
 ### Code Defender Security
 - **Security Incidents**: Client-side attack detection and investigation
-- **Script Inventory**: Third-party script monitoring and PCI compliance
+- **Script Inventory**: First- and third-party script monitoring and PCI compliance
 - **Header Inventory**: HTTP security header analysis and optimization
 
 ## 🔗 Integration Options
@@ -149,6 +155,46 @@ If you only need one service, you can configure just that token:
   }
 }
 ```
+
+## 🧪 Local Development & Testing
+
+### Running against a local pxPortal instance
+
+To test the MCP server against a locally running pxPortal (default port `3000`), set `HUMAN_TRAFFIC_API_BASE` to override the traffic data endpoint:
+
+```json
+{
+  "mcpServers": {
+    "human-security": {
+      "command": "node",
+      "args": ["/path/to/human-mcp-server/dist/index.cjs"],
+      "env": {
+        "HUMAN_CYBERFRAUD_API_TOKEN": "your-token",
+        "HUMAN_TRAFFIC_API_BASE": "http://localhost:3000/api/v1/botDefender/traffic"
+      }
+    }
+  }
+}
+```
+
+### End-to-end test script
+
+`scripts/test_local.mjs` spawns the MCP server and runs 25 scenarios against a live backend, covering all modes (`overtime`, `metrics`, `tops`), filters, combined calls, time ranges, and tops field coverage.
+
+```bash
+# Build first
+npm run build
+
+# Run all scenarios against localhost:3000
+HUMAN_CYBERFRAUD_API_TOKEN=<token> node scripts/test_local.mjs
+
+# Run against a custom backend
+HUMAN_CYBERFRAUD_API_TOKEN=<token> \
+HUMAN_TRAFFIC_API_BASE=http://my-host/api/v1/botDefender/traffic \
+node scripts/test_local.mjs
+```
+
+Expected output: `RESULTS: 25 passed, 0 failed`.
 
 ## 🆘 Support
 

@@ -1,6 +1,6 @@
 import type { HttpClient } from '../utils/httpClient';
 import { clampAttackReportingTimes } from '../utils/dateUtils';
-import { HUMAN_API_BASE } from '../utils/constants';
+import { HUMAN_API_BASE, HUMAN_TRAFFIC_API_BASE } from '../utils/constants';
 import type {
     CyberfraudOvertimeParams,
     CyberfraudOverviewParams,
@@ -14,6 +14,13 @@ import type {
 } from '../types/cyberfraud';
 
 const API_BASE = `${HUMAN_API_BASE}/cyberfraud`;
+const TRAFFIC_DATA_BASE = HUMAN_TRAFFIC_API_BASE;
+
+interface ApiEnvelope<T> {
+    result: boolean;
+    message?: string;
+    content: T;
+}
 
 function buildAttackReportingUrl(endpoint: string, params: Record<string, any>) {
     const queryParams = new URLSearchParams();
@@ -27,43 +34,30 @@ function buildAttackReportingUrl(endpoint: string, params: Record<string, any>) 
     return `${API_BASE}/attack-reporting${endpoint}?${queryParams.toString()}`;
 }
 
-function buildTrafficDataQuery(params: {
-    from: number;
-    to: number;
-    appId?: string[];
-    source?: string[];
-    overtime?: string[];
-    tops?: string[];
-    traffic?: string[];
-    pageType?: string[];
-    count?: string[];
-    withoutTotals?: boolean;
-    metricsEnrichment?: any;
-}) {
+function buildTrafficDataUrl(endpoint: string, from: number, to: number) {
     const query = new URLSearchParams();
-    query.append('from', params.from.toString());
-    query.append('to', params.to.toString());
-    const sources = params.source && params.source.length > 0 ? params.source : ['web', 'mobile'];
-    sources.forEach((s) => query.append('source[]', s));
-    if (params.appId) params.appId.forEach((id) => query.append('appId[]', id));
-    const allOvertime = [
-        'legitimate',
-        'blocked',
-        'potentialBlock',
-        'whitelist',
-        'blacklist',
-        'goodKnownBots',
-        'captchaSolved',
-    ];
-    const overtime = params.overtime && params.overtime.length > 0 ? params.overtime : allOvertime;
-    overtime.forEach((o) => query.append('overtime[]', o));
-    if (params.tops) params.tops.forEach((t) => query.append('tops[]', t));
-    if (params.traffic) params.traffic.forEach((t) => query.append('traffic[]', t));
-    if (params.pageType) params.pageType.forEach((p) => query.append('pageType[]', p));
-    if (params.count) params.count.forEach((c) => query.append('count[]', c));
-    if (params.withoutTotals) query.append('withoutTotals', 'true');
-    if (params.metricsEnrichment) query.append('metricsEnrichment', JSON.stringify(params.metricsEnrichment));
-    return `${API_BASE}/traffic-data?${query.toString()}`;
+    query.append('from', from.toString());
+    query.append('to', to.toString());
+    return `${TRAFFIC_DATA_BASE}${endpoint}?${query.toString()}`;
+}
+
+function buildBaseBody(params: TrafficDataInput) {
+    const body: Record<string, unknown> = {
+        trafficSource:
+            params.trafficSource && params.trafficSource.length > 0 ? params.trafficSource : ['web', 'mobile'],
+    };
+    if (params.filters) {
+        body.filters = params.filters;
+    }
+    return body;
+}
+
+async function parseApiResponse<T>(res: { json: () => Promise<unknown> }): Promise<T> {
+    const json = (await res.json()) as ApiEnvelope<T>;
+    if (!json.result) {
+        throw new Error(json.message || 'API request failed');
+    }
+    return json.content;
 }
 
 export class CyberfraudService {
@@ -102,12 +96,67 @@ export class CyberfraudService {
     }
 
     async getTrafficData(params: TrafficDataInput): Promise<TrafficDataResponse> {
-        const { startTime, endTime, ...rest } = params;
+        const { startTime, endTime, overtime, metrics, tops, seriesFields, limit, includeNulls } = params;
         const clamped = clampAttackReportingTimes(startTime, endTime);
         const from = Math.floor(new Date(clamped.startTime).getTime() / 1000);
         const to = Math.floor(new Date(clamped.endTime).getTime() / 1000);
-        const url = buildTrafficDataQuery({ from, to, ...rest });
-        const res = await this.http.request(url);
-        return (await res.json()) as TrafficDataResponse;
+
+        type RequestTask = { kind: 'overtime' } | { kind: 'metrics' } | { kind: 'tops'; field: string };
+
+        const tasks: RequestTask[] = [];
+        if (overtime) tasks.push({ kind: 'overtime' });
+        if (metrics) tasks.push({ kind: 'metrics' });
+        if (tops) {
+            for (const field of tops) {
+                tasks.push({ kind: 'tops', field });
+            }
+        }
+
+        const results = await Promise.all(
+            tasks.map(async (task) => {
+                if (task.kind === 'overtime') {
+                    const body = { ...buildBaseBody(params) };
+                    if (seriesFields && seriesFields.length > 0) {
+                        body.seriesFields = seriesFields;
+                    }
+                    const url = buildTrafficDataUrl('/overtime', from, to);
+                    const res = await this.http.request(url, { method: 'POST', body });
+                    const content = await parseApiResponse<NonNullable<TrafficDataResponse['overtime']>>(res);
+                    return { kind: 'overtime' as const, content };
+                }
+
+                if (task.kind === 'metrics') {
+                    const body = buildBaseBody(params);
+                    const url = buildTrafficDataUrl('/metrics', from, to);
+                    const res = await this.http.request(url, { method: 'POST', body });
+                    const content = await parseApiResponse<NonNullable<TrafficDataResponse['metrics']>>(res);
+                    return { kind: 'metrics' as const, content };
+                }
+
+                const body: Record<string, unknown> = { ...buildBaseBody(params) };
+                if (limit !== undefined) body.limit = limit;
+                if (includeNulls !== undefined) body.includeNulls = includeNulls;
+
+                const url = buildTrafficDataUrl(`/tops/${task.field}`, from, to);
+                const res = await this.http.request(url, { method: 'POST', body });
+                const content = await parseApiResponse<{ results: Array<{ value: string; count: number }> }>(res);
+                return { kind: 'tops' as const, field: task.field, content };
+            }),
+        );
+
+        const response: TrafficDataResponse = {};
+
+        for (const result of results) {
+            if (result.kind === 'overtime') {
+                response.overtime = result.content;
+            } else if (result.kind === 'metrics') {
+                response.metrics = result.content;
+            } else {
+                if (!response.tops) response.tops = {};
+                response.tops[result.field] = result.content.results;
+            }
+        }
+
+        return response;
     }
 }

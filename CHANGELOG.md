@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.0.5] - 2026-07-01
+
+### Changed
+
+* Adjusted traffic data tool to new backend routes
+
 ## [1.0.4] - 2025-09-09
 
 ### Fixed
