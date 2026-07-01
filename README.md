@@ -93,6 +93,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 - **`HUMAN_API_HOST`**: Use a different API endpoint (default: `api.humansecurity.com`)
 - **`HUMAN_API_VERSION`**: Specify API version (default: `v1`)
 - **`HTTP_TIMEOUT_MS`**: Request timeout in milliseconds (default: `30000`)
+- **`HUMAN_TRAFFIC_API_BASE`**: Override the base URL for traffic data endpoints. Useful for local development against a pxPortal instance (e.g. `http://localhost:3000/api/v1/botDefender/traffic`). When not set, defaults to the standard HUMAN API base.
 
 ## 💡 Usage Examples
 
@@ -108,7 +109,7 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 ## 📊 Available Tools
 
 ### Cyberfraud Protection
-- **Traffic Data**: Comprehensive traffic analytics with security metrics
+- **Traffic Data**: Comprehensive traffic analytics with overtime time-series, aggregated metrics, and ranked tops breakdowns
 - **Attack Reporting (Overtime)**: Time-series attack analytics and trend analysis
 - **Attack Reporting (Overview)**: Detailed attack cluster intelligence and forensics
 - **Account Information**: Individual account security analysis and incident tracking
@@ -149,6 +150,46 @@ If you only need one service, you can configure just that token:
   }
 }
 ```
+
+## 🧪 Local Development & Testing
+
+### Running against a local pxPortal instance
+
+To test the MCP server against a locally running pxPortal (default port `3000`), set `HUMAN_TRAFFIC_API_BASE` to override the traffic data endpoint:
+
+```json
+{
+  "mcpServers": {
+    "human-security": {
+      "command": "node",
+      "args": ["/path/to/human-mcp-server/dist/index.cjs"],
+      "env": {
+        "HUMAN_CYBERFRAUD_API_TOKEN": "your-token",
+        "HUMAN_TRAFFIC_API_BASE": "http://localhost:3000/api/v1/botDefender/traffic"
+      }
+    }
+  }
+}
+```
+
+### End-to-end test script
+
+`scripts/test_local.mjs` spawns the MCP server and runs 25 scenarios against a live backend, covering all modes (`overtime`, `metrics`, `tops`), filters, combined calls, time ranges, and tops field coverage.
+
+```bash
+# Build first
+npm run build
+
+# Run all scenarios against localhost:3000
+HUMAN_CYBERFRAUD_API_TOKEN=<token> node scripts/test_local.mjs
+
+# Run against a custom backend
+HUMAN_CYBERFRAUD_API_TOKEN=<token> \
+HUMAN_TRAFFIC_API_BASE=http://my-host/api/v1/botDefender/traffic \
+node scripts/test_local.mjs
+```
+
+Expected output: `RESULTS: 25 passed, 0 failed`.
 
 ## 🆘 Support
 
