@@ -19,7 +19,7 @@ export function registerCyberfraudGetTrafficData(server: McpServer, cyberfraudSe
 ├── Need top blocked IP orgs? → tops: ["socketIpOrgName"]
 ├── Security focus only? → filters: { trafficTags: ["blocked", "potentialBlock"] }
 ├── Multi-platform analysis? → trafficSource: ["web", "mobile"]
-└── Need to investigate a specific Block ID or IP? → use human_investigate_block instead
+└── Need raw request-level records? → use human_get_raw_activities instead
 
 ✅ REQUEST MODES (combinable in one call):
 • overtime: Per-minute time-series counts. Use seriesFields to break out by knownBot, customRule, or accessTokenName.

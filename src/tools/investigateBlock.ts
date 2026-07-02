@@ -8,7 +8,7 @@ import { DATE_FORMAT_EXAMPLE_END, DATE_FORMAT_EXAMPLE_START } from '../utils/con
 
 export function registerInvestigateBlock(server: McpServer, cyberfraudService: CyberfraudService) {
     server.registerTool(
-        'human_investigate_block',
+        'human_get_raw_activities',
         {
             description: `Fetches raw activity records (individual request logs), total count, and aggregated traffic metrics from HUMAN Security for a given search criteria and time window.
 
@@ -89,7 +89,7 @@ There are two ways to specify search criteria (can be combined — they are merg
             inputSchema: InvestigateBlockBaseSchema.shape,
             outputSchema: makeStructuredResponseSchema(InvestigateBlockOutputSchema).shape,
             annotations: {
-                title: 'HUMAN Investigate Traffic',
+                title: 'HUMAN Get Raw Activities',
                 readOnlyHint: true,
                 openWorldHint: true,
             },

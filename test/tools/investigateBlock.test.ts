@@ -17,7 +17,7 @@ describe('registerInvestigateBlock', () => {
         registerInvestigateBlock(server as any, service as any);
         expect(server.registerTool.calledOnce).to.be.true;
         const [name, config, handler] = server.registerTool.firstCall.args;
-        expect(name).to.equal('human_investigate_block');
+        expect(name).to.equal('human_get_raw_activities');
         expect(config).to.have.property('description');
         expect(config.description).to.include('blocked');
 
