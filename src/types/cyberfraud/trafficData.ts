@@ -209,13 +209,19 @@ export const InvestigateBlockBaseSchema = z.object({
     blockReference: z
         .string()
         .optional()
-        .describe('Block ID / Reference ID to investigate (e.g. "b5e0-b1d1-a54de"). Provide this OR socketIp.'),
+        .describe(
+            'Shortcut: Block ID / Reference ID to investigate (e.g. "b5e0-b1d1-a54de"). Auto-added to searchQuery.',
+        ),
     socketIp: z
         .string()
         .optional()
         .describe(
-            'IP address or CIDR range to investigate (e.g. "203.0.113.10" or "203.0.113.0/24"). Provide this OR blockReference.',
+            'Shortcut: IP address or CIDR range to investigate (e.g. "203.0.113.10" or "203.0.113.0/24"). Auto-added to searchQuery.',
         ),
+    searchQuery: SearchQuerySchema.describe(
+        'Full searchQuery for any field-level filtering. Same syntax as human_get_traffic_data. ' +
+            'If blockReference or socketIp shortcuts are also provided, they are merged with AND.',
+    ),
     startTime: z
         .string()
         .describe(
@@ -234,8 +240,11 @@ export const InvestigateBlockBaseSchema = z.object({
 });
 
 export const InvestigateBlockInputSchema = InvestigateBlockBaseSchema.refine(
-    (data) => data.blockReference !== undefined || data.socketIp !== undefined,
-    { message: 'At least one of blockReference or socketIp must be provided.' },
+    (data) =>
+        data.blockReference !== undefined ||
+        data.socketIp !== undefined ||
+        (data.searchQuery !== undefined && data.searchQuery.length > 0),
+    { message: 'At least one of blockReference, socketIp, or searchQuery must be provided.' },
 );
 
 export type InvestigateBlockInput = z.infer<typeof InvestigateBlockInputSchema>;

@@ -232,15 +232,33 @@ export class CyberfraudService {
         const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
         enforceInvestigateTimeRange(clamped.startTime, clamped.endTime);
 
-        const searchQuery: NonNullable<TrafficDataInput['searchQuery']> = [];
+        const shortcutItems: NonNullable<TrafficDataInput['searchQuery']> = [];
         if (params.blockReference) {
-            searchQuery.push({ type: 'field', key: 'blockReference', operator: '=', value: params.blockReference });
+            shortcutItems.push({ type: 'field', key: 'blockReference', operator: '=', value: params.blockReference });
         }
         if (params.socketIp) {
-            if (params.blockReference) {
-                searchQuery.push({ type: 'operator', operator: 'OR' });
+            if (shortcutItems.length > 0) {
+                shortcutItems.push({ type: 'operator', operator: 'OR' });
             }
-            searchQuery.push({ type: 'field', key: 'socketIp', operator: '=', value: params.socketIp });
+            shortcutItems.push({ type: 'field', key: 'socketIp', operator: '=', value: params.socketIp });
+        }
+
+        let searchQuery: NonNullable<TrafficDataInput['searchQuery']>;
+        const explicitQuery = params.searchQuery ?? [];
+        if (shortcutItems.length > 0 && explicitQuery.length > 0) {
+            searchQuery = [
+                { type: 'operator', operator: '(' as const },
+                ...shortcutItems,
+                { type: 'operator', operator: ')' as const },
+                { type: 'operator', operator: 'AND' as const },
+                { type: 'operator', operator: '(' as const },
+                ...explicitQuery,
+                { type: 'operator', operator: ')' as const },
+            ];
+        } else if (shortcutItems.length > 0) {
+            searchQuery = shortcutItems;
+        } else {
+            searchQuery = explicitQuery;
         }
 
         const baseParams = {

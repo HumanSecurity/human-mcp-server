@@ -392,8 +392,46 @@ describe('CyberfraudService', () => {
 
             const firstCall = httpClient.request.firstCall;
             const sq = firstCall?.args[1]?.body?.searchQuery;
-            const operatorItem = sq?.find((item: any) => item.type === 'operator');
-            expect(operatorItem?.operator).to.equal('OR');
+            const operatorItem = sq?.find((item: any) => item.type === 'operator' && item.operator === 'OR');
+            expect(operatorItem).to.exist;
+        });
+
+        it('accepts searchQuery only (no blockReference or socketIp)', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
+
+            await service
+                .investigateBlock({
+                    searchQuery: [{ type: 'field', key: 'userEmail', operator: '=', value: 'test@example.com' }],
+                    startTime,
+                    endTime,
+                })
+                .catch(() => {});
+
+            const firstCall = httpClient.request.firstCall;
+            const sq = firstCall?.args[1]?.body?.searchQuery;
+            expect(sq).to.deep.equal([{ type: 'field', key: 'userEmail', operator: '=', value: 'test@example.com' }]);
+        });
+
+        it('merges shortcut fields with explicit searchQuery using AND', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
+
+            await service
+                .investigateBlock({
+                    socketIp: '1.2.3.4',
+                    searchQuery: [{ type: 'field', key: 'displayScore', operator: '>=', value: 80 }],
+                    startTime,
+                    endTime,
+                })
+                .catch(() => {});
+
+            const firstCall = httpClient.request.firstCall;
+            const sq = firstCall?.args[1]?.body?.searchQuery;
+            const andOp = sq?.find((item: any) => item.type === 'operator' && item.operator === 'AND');
+            expect(andOp).to.exist;
+            const ipItem = sq?.find((item: any) => item.key === 'socketIp');
+            expect(ipItem).to.exist;
+            const scoreItem = sq?.find((item: any) => item.key === 'displayScore');
+            expect(scoreItem).to.exist;
         });
     });
 });

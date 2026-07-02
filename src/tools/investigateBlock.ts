@@ -10,24 +10,44 @@ export function registerInvestigateBlock(server: McpServer, cyberfraudService: C
     server.registerTool(
         'human_investigate_block',
         {
-            description: `Investigates why a specific Block ID or IP address is being blocked by HUMAN Security.
-Fetches matching raw activity records, total count, and aggregated traffic metrics for the given time window.
+            description: `Fetches raw activity records (individual request logs), total count, and aggregated traffic metrics from HUMAN Security for a given search criteria and time window.
+
+Use this tool to drill into specific traffic at the request level — whether investigating a Block ID, an IP, a user email, a domain, or any other supported field.
 
 ⚠️ TIME RANGE CONSTRAINT: Raw activity queries are expensive. The time window MUST be at most 4 hours.
 Use short windows like the last 30, 60, or 240 minutes. If the user does not specify, default to the last 1 hour.
 
 🎯 WHEN TO USE THIS TOOL:
-• User provides a Block ID / Reference ID and wants to understand why it was blocked
-• User provides an IP address and wants to understand what traffic came from it and why it was blocked
-• User wants to drill into a specific incident at the request level
+• User wants to investigate a specific Block ID / Reference ID
+• User wants to investigate traffic from a specific IP or CIDR
+• User wants to find raw activity records for a user email, domain, path, VID, or any other field
+• User wants to drill into specific incidents at the request level
+• User asks for raw request logs matching a condition
 
-🔍 KEY RESPONSE FIELDS FOR BLOCK ANALYSIS (in activities[]):
+📋 SEARCH OPTIONS:
+There are two ways to specify search criteria (can be combined — they are merged with AND):
+
+1. SHORTCUTS (convenience fields):
+   • blockReference — auto-builds searchQuery for Block ID lookup
+   • socketIp — auto-builds searchQuery for IP/CIDR lookup
+
+2. FULL searchQuery (same syntax as human_get_traffic_data):
+   Use for any field: userEmail, domain, path, displayScore, vid, uaServer, knownBot,
+   incidentTypes, filterOriginReason, httpMethod, httpStatusCode, customRule,
+   accessTokenName, headerReferer, graphqlOperationName, graphqlOperationType,
+   customParam1–customParam10, socketIpOrgName, agent, and more.
+
+   Field expression: { type: "field", key: "<fieldKey>", operator: "<op>", value: "<val>" }
+   Logical operator: { type: "operator", operator: "AND" | "OR" | "NOT" | "(" | ")" }
+
+🔍 KEY RESPONSE FIELDS FOR ANALYSIS (in activities[]):
 • filterOriginReason — the specific reason the request was filtered/blocked
 • ruleName — which rule triggered the block
 • displayScore — risk score (0–100); higher = more suspicious
-• incidentTypes — detected threat signals — valid values: "Bot Behavior", "Automation Tool", "Spoof", "Behavioral Anomalies", "UI Anomaly", "Bad Reputation", "Volumetric Rule", "Volumetric Anomaly", "Missing Sensor Data", "Cloud Service", "Anonymizing Service", "Denylisted Service", "Custom Denylist", "Captcha Solving Attack"
+• incidentTypes — detected threat signals: "Bot Behavior", "Automation Tool", "Spoof", "Behavioral Anomalies", "UI Anomaly", "Bad Reputation", "Volumetric Rule", "Volumetric Anomaly", "Missing Sensor Data", "Cloud Service", "Anonymizing Service", "Denylisted Service", "Custom Denylist", "Captcha Solving Attack"
 • trafficTags — traffic classification (e.g. "Blocked Requests", "Simulated Block")
 • blockReference — the Block ID associated with this request
+• socketIp, domain, path, userEmail, vid, httpMethod, httpStatusCode, country, browserDisplay, osFamily
 
 📊 RESPONSE STRUCTURE:
 • count: total number of matching records in the time window
@@ -36,29 +56,35 @@ Use short windows like the last 30, 60, or 240 minutes. If the user does not spe
 
 ✅ USAGE PATTERNS:
 
-1. INVESTIGATE BY BLOCK ID:
+1. INVESTIGATE BY BLOCK ID (shortcut):
    {"blockReference": "b5e0-b1d1-a54de", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
 
-2. INVESTIGATE BY IP:
+2. INVESTIGATE BY IP (shortcut):
    {"socketIp": "203.0.113.10", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
 
-3. INVESTIGATE IP WITH CIDR:
-   {"socketIp": "203.0.113.0/24", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
+3. INVESTIGATE BY USER EMAIL:
+   {"searchQuery": [{"type": "field", "key": "userEmail", "operator": "=", "value": "user@example.com"}], "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
 
-4. INVESTIGATE BOTH (returns OR match):
-   {"blockReference": "b5e0-b1d1-a54de", "socketIp": "203.0.113.10", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
+4. INVESTIGATE BY DOMAIN + HIGH RISK:
+   {"searchQuery": [{"type": "field", "key": "domain", "operator": "contains", "value": "example.com"}, {"type": "operator", "operator": "AND"}, {"type": "field", "key": "displayScore", "operator": ">=", "value": 80}], "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
 
-5. NARROW TO BLOCKED TRAFFIC ONLY:
+5. INVESTIGATE BY VID:
+   {"searchQuery": [{"type": "field", "key": "vid", "operator": "=", "value": "abc-123-def"}], "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
+
+6. SHORTCUT + SEARCHQUERY COMBINED (IP AND blocked traffic with automation):
+   {"socketIp": "203.0.113.10", "searchQuery": [{"type": "field", "key": "incidentTypes", "operator": "=", "value": "Automation Tool"}], "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}"}
+
+7. NARROW TO BLOCKED TRAFFIC ONLY (via filters):
    {"socketIp": "203.0.113.10", "startTime": "${DATE_FORMAT_EXAMPLE_START}", "endTime": "${DATE_FORMAT_EXAMPLE_END}", "filters": {"trafficTags": ["blocked", "potentialBlock"]}}
 
 ⚠️ NOTES:
-• Provide at least one of blockReference or socketIp.
+• At least one of blockReference, socketIp, or searchQuery must be provided.
 • trafficSource defaults to ["web", "mobile"] when omitted.
-• For broader traffic analysis without a specific Block ID or IP, use human_get_traffic_data instead.`,
+• For broader traffic analytics (overtime, metrics, tops) without raw records, use human_get_traffic_data instead.`,
             inputSchema: InvestigateBlockBaseSchema.shape,
             outputSchema: makeStructuredResponseSchema(InvestigateBlockOutputSchema).shape,
             annotations: {
-                title: 'HUMAN Investigate Block',
+                title: 'HUMAN Investigate Traffic',
                 readOnlyHint: true,
                 openWorldHint: true,
             },
