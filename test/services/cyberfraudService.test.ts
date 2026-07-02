@@ -234,5 +234,166 @@ describe('CyberfraudService', () => {
                 'network fail',
             );
         });
+
+        it('includes searchQuery in request body when provided', async () => {
+            const metricsContent = { results: { total: 500 }, labels: {} };
+            httpClient.request.resolves(mockApiResponse(metricsContent));
+
+            await service.getTrafficData({
+                ...baseParams,
+                metrics: true,
+                searchQuery: [{ type: 'field', key: 'socketIp', operator: '=', value: '1.2.3.4' }],
+            } as any);
+
+            const [, options] = httpClient.request.firstCall.args;
+            expect(options.body.searchQuery).to.deep.equal([
+                { type: 'field', key: 'socketIp', operator: '=', value: '1.2.3.4' },
+            ]);
+        });
+
+        it('omits searchQuery from body when not provided', async () => {
+            const metricsContent = { results: { total: 500 }, labels: {} };
+            httpClient.request.resolves(mockApiResponse(metricsContent));
+
+            await service.getTrafficData({ ...baseParams, metrics: true } as any);
+
+            const [, options] = httpClient.request.firstCall.args;
+            expect(options.body).to.not.have.property('searchQuery');
+        });
+    });
+
+    describe('getRawActivities', () => {
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+
+        function mockApiResponse(content: unknown) {
+            return { json: async () => ({ result: true, message: 'success', content }), ok: true };
+        }
+
+        it('calls POST /activities with correct URL and body', async () => {
+            const activitiesContent = { results: [{ socketIp: '1.2.3.4', displayScore: 90 }] };
+            httpClient.request.resolves(mockApiResponse(activitiesContent));
+
+            const result = await service.getRawActivities({
+                startTime,
+                endTime,
+                limit: 20,
+                offset: 0,
+            });
+
+            expect(httpClient.request.calledOnce).to.be.true;
+            const [url, options] = httpClient.request.firstCall.args;
+            expect(url).to.include('/cyberfraud/traffic-data/activities');
+            expect(url).to.include('from=');
+            expect(url).to.include('to=');
+            expect(options.method).to.equal('POST');
+            expect(options.body.limit).to.equal(20);
+            expect(options.body.offset).to.equal(0);
+            expect(result).to.deep.equal(activitiesContent.results);
+        });
+
+        it('includes searchQuery in body when provided', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [] }));
+
+            await service.getRawActivities({
+                startTime,
+                endTime,
+                searchQuery: [{ type: 'field', key: 'blockReference', operator: '=', value: 'abc123' }],
+            });
+
+            const [, options] = httpClient.request.firstCall.args;
+            expect(options.body.searchQuery).to.deep.equal([
+                { type: 'field', key: 'blockReference', operator: '=', value: 'abc123' },
+            ]);
+        });
+    });
+
+    describe('getRawActivitiesCount', () => {
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+
+        function mockApiResponse(content: unknown) {
+            return { json: async () => ({ result: true, message: 'success', content }), ok: true };
+        }
+
+        it('calls POST /activities/count and returns total', async () => {
+            httpClient.request.resolves(mockApiResponse({ total: 42 }));
+
+            const result = await service.getRawActivitiesCount({ startTime, endTime });
+
+            expect(httpClient.request.calledOnce).to.be.true;
+            const [url] = httpClient.request.firstCall.args;
+            expect(url).to.include('/cyberfraud/traffic-data/activities/count');
+            expect(result).to.equal(42);
+        });
+    });
+
+    describe('investigateBlock', () => {
+        const now = new Date();
+        const startTime = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
+        const endTime = now.toISOString();
+
+        function mockApiResponse(content: unknown) {
+            return { json: async () => ({ result: true, message: 'success', content }), ok: true };
+        }
+
+        it('rejects when time range exceeds 4 hours', async () => {
+            const wideStart = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString();
+            await expect(
+                service.investigateBlock({ blockReference: 'abc', startTime: wideStart, endTime }),
+            ).to.be.rejectedWith('must not exceed 4 hours');
+        });
+
+        it('orchestrates parallel calls and returns combined result', async () => {
+            const activitiesContent = { results: [{ socketIp: '1.2.3.4' }] };
+            const countContent = { total: 5 };
+            const metricsContent = { results: { total: 10, blocked: 5 }, labels: {} };
+
+            httpClient.request.onCall(0).resolves(mockApiResponse(activitiesContent));
+            httpClient.request.onCall(1).resolves(mockApiResponse(countContent));
+            httpClient.request.onCall(2).resolves(mockApiResponse(metricsContent));
+
+            const result = await service.investigateBlock({ blockReference: 'b5e0-b1d1', startTime, endTime });
+
+            expect(httpClient.request.calledThrice).to.be.true;
+            expect(result.count).to.equal(5);
+            expect(result.activities).to.deep.equal(activitiesContent.results);
+            expect(result.metrics).to.deep.equal(metricsContent);
+        });
+
+        it('builds searchQuery with blockReference only', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
+
+            await service.investigateBlock({ blockReference: 'myblock', startTime, endTime }).catch(() => {});
+
+            const firstCall = httpClient.request.firstCall;
+            const body = firstCall?.args[1]?.body;
+            expect(body?.searchQuery).to.deep.include({
+                type: 'field',
+                key: 'blockReference',
+                operator: '=',
+                value: 'myblock',
+            });
+        });
+
+        it('builds searchQuery with OR when both blockReference and socketIp provided', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
+
+            await service
+                .investigateBlock({
+                    blockReference: 'myblock',
+                    socketIp: '1.2.3.4',
+                    startTime,
+                    endTime,
+                })
+                .catch(() => {});
+
+            const firstCall = httpClient.request.firstCall;
+            const sq = firstCall?.args[1]?.body?.searchQuery;
+            const operatorItem = sq?.find((item: any) => item.type === 'operator');
+            expect(operatorItem?.operator).to.equal('OR');
+        });
     });
 });
