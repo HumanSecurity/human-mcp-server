@@ -1,6 +1,6 @@
 import * as chai from 'chai';
 import sinon from 'sinon';
-import { registerInvestigateBlock } from '../../src/tools/investigateBlock';
+import { registerInvestigateBlock } from '../../src/tools/getRawActivities';
 
 describe('registerInvestigateBlock', () => {
     const { expect } = chai;

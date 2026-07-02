@@ -9,7 +9,7 @@ import { registerCodeDefenderGetHeaderInventory } from './codeDefenderGetHeaderI
 import type { CyberfraudService } from '../services/cyberfraudService';
 import type { CodeDefenderService } from '../services/codeDefenderService';
 import { registerCyberfraudGetTrafficData } from './getTrafficData';
-import { registerInvestigateBlock } from './investigateBlock';
+import { registerInvestigateBlock } from './getRawActivities';
 
 export function registerTools(
     server: McpServer,
