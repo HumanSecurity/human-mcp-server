@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.1] - 2026-07-02
+
+### Fixed
+
+* Corrected version numbering: `1.1.0` was inadvertently published to npm ahead of the `1.0.x` line and superseded by subsequent `1.0.x` releases, leaving the registry with out-of-order versions. Bumping to `1.1.1` restores strictly increasing semantic versioning going forward.
+
 ## [1.0.5] - 2026-07-01
 
 ### Changed
