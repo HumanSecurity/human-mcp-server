@@ -229,6 +229,20 @@ export class CyberfraudService {
     }
 
     async investigateBlock(params: InvestigateBlockInput): Promise<InvestigateBlockOutput> {
+        // Guard the "at least one criterion" contract here: the tool exposes the un-refined
+        // base schema to the MCP SDK, so the refinement on InvestigateBlockInputSchema is not
+        // applied at the boundary. Without this, a criteria-less call would fetch all unfiltered
+        // traffic in the window (an expensive, meaningless query).
+        const hasCriteria =
+            !!params.blockReference ||
+            !!params.socketIp ||
+            (params.searchQuery !== undefined && params.searchQuery.length > 0);
+        if (!hasCriteria) {
+            throw new Error(
+                'At least one of blockReference, socketIp, or searchQuery must be provided to investigate traffic.',
+            );
+        }
+
         const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
         enforceInvestigateTimeRange(clamped.startTime, clamped.endTime);
 
@@ -270,7 +284,7 @@ export class CyberfraudService {
         };
 
         const [activities, count, metricsData] = await Promise.all([
-            this.getRawActivities({ ...baseParams, limit: 20, offset: 0 }),
+            this.getRawActivities({ ...baseParams, limit: params.limit ?? 20, offset: params.offset ?? 0 }),
             this.getRawActivitiesCount(baseParams),
             this.getTrafficData({ ...baseParams, metrics: true }),
         ]);

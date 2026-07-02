@@ -237,6 +237,21 @@ export const InvestigateBlockBaseSchema = z.object({
         .optional()
         .describe('Platform filter: ["web"], ["mobile"], or both. Defaults to ["web", "mobile"].'),
     filters: TrafficDataFiltersSchema.describe('Optional additional filters to narrow the investigation scope.'),
+    limit: z
+        .number()
+        .int()
+        .min(1)
+        .max(100)
+        .optional()
+        .describe(
+            'Max raw activity records to return (1-100). Defaults to 20. The count field always reflects the full total.',
+        ),
+    offset: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe('Number of records to skip for pagination (records are sorted newest-first). Defaults to 0.'),
 });
 
 export const InvestigateBlockInputSchema = InvestigateBlockBaseSchema.refine(

@@ -346,6 +346,13 @@ describe('CyberfraudService', () => {
             ).to.be.rejectedWith('must not exceed 4 hours');
         });
 
+        it('rejects when no criteria (blockReference, socketIp, or searchQuery) is provided', async () => {
+            await expect(service.investigateBlock({ startTime, endTime } as any)).to.be.rejectedWith(
+                'At least one of blockReference, socketIp, or searchQuery must be provided',
+            );
+            expect(httpClient.request.called).to.be.false;
+        });
+
         it('orchestrates parallel calls and returns combined result', async () => {
             const activitiesContent = { results: [{ socketIp: '1.2.3.4' }] };
             const countContent = { total: 5 };
@@ -361,6 +368,19 @@ describe('CyberfraudService', () => {
             expect(result.count).to.equal(5);
             expect(result.activities).to.deep.equal(activitiesContent.results);
             expect(result.metrics).to.deep.equal(metricsContent);
+        });
+
+        it('forwards limit and offset to the raw activities request and defaults to 20/0', async () => {
+            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
+
+            await service.investigateBlock({ socketIp: '1.2.3.4', startTime, endTime, limit: 50, offset: 40 });
+
+            const activitiesCall = httpClient.request
+                .getCalls()
+                .find((c: any) => typeof c.args[0] === 'string' && c.args[0].includes('/activities?'));
+            expect(activitiesCall).to.exist;
+            expect(activitiesCall!.args[1].body.limit).to.equal(50);
+            expect(activitiesCall!.args[1].body.offset).to.equal(40);
         });
 
         it('builds searchQuery with blockReference only', async () => {

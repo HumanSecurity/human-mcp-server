@@ -50,9 +50,13 @@ There are two ways to specify search criteria (can be combined — they are merg
 • socketIp, domain, path, userEmail, vid, httpMethod, httpStatusCode, country, browserDisplay, osFamily
 
 📊 RESPONSE STRUCTURE:
-• count: total number of matching records in the time window
-• activities: up to 20 sample records with all available fields
+• count: total number of matching records in the time window (always the full total, regardless of limit/offset)
+• activities: matching records, newest first — up to 'limit' (default 20, max 100) starting at 'offset'
 • metrics: aggregated totals (blocked, legitimate, total, etc.) for the matching traffic
+
+📄 PAGINATION:
+• limit: how many raw records to return (1-100, default 20).
+• offset: how many to skip (records are sorted newest-first). Use count + offset to page through results.
 
 ✅ USAGE PATTERNS:
 
@@ -80,6 +84,7 @@ There are two ways to specify search criteria (can be combined — they are merg
 ⚠️ NOTES:
 • At least one of blockReference, socketIp, or searchQuery must be provided.
 • trafficSource defaults to ["web", "mobile"] when omitted.
+• Use limit/offset to page through more than the default 20 records when count is large.
 • For broader traffic analytics (overtime, metrics, tops) without raw records, use human_get_traffic_data instead.`,
             inputSchema: InvestigateBlockBaseSchema.shape,
             outputSchema: makeStructuredResponseSchema(InvestigateBlockOutputSchema).shape,
