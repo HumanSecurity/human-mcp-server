@@ -202,26 +202,20 @@ export const TrafficDataOutputSchema = z
 export type TrafficDataResponse = z.infer<typeof TrafficDataOutputSchema>;
 
 // =============================================================================
-// Investigate Block
+// Raw Activities
 // =============================================================================
 
-export const InvestigateBlockBaseSchema = z.object({
-    blockReference: z
-        .string()
-        .optional()
-        .describe(
-            'Shortcut: Block ID / Reference ID to investigate (e.g. "b5e0-b1d1-a54de"). Auto-added to searchQuery.',
-        ),
-    socketIp: z
-        .string()
-        .optional()
-        .describe(
-            'Shortcut: IP address or CIDR range to investigate (e.g. "203.0.113.10" or "203.0.113.0/24"). Auto-added to searchQuery.',
-        ),
-    searchQuery: SearchQuerySchema.describe(
-        'Full searchQuery for any field-level filtering. Same syntax as human_get_traffic_data. ' +
-            'If blockReference or socketIp shortcuts are also provided, they are merged with AND.',
-    ),
+const RequiredSearchQuerySchema = z
+    .array(SearchQueryItemSchema)
+    .min(1)
+    .describe(
+        'Required structured search query for field-level filtering with boolean logic. ' +
+            'Same syntax as human_get_traffic_data. ' +
+            'Each item is either a field expression ({type:"field", key, operator, value}) or a logical connector ({type:"operator", operator:"AND"|"OR"|"NOT"|"("|")"}).',
+    );
+
+export const RawActivitiesInputBaseSchema = z.object({
+    searchQuery: RequiredSearchQuerySchema,
     startTime: z
         .string()
         .describe(
@@ -254,15 +248,8 @@ export const InvestigateBlockBaseSchema = z.object({
         .describe('Number of records to skip for pagination (records are sorted newest-first). Defaults to 0.'),
 });
 
-export const InvestigateBlockInputSchema = InvestigateBlockBaseSchema.refine(
-    (data) =>
-        data.blockReference !== undefined ||
-        data.socketIp !== undefined ||
-        (data.searchQuery !== undefined && data.searchQuery.length > 0),
-    { message: 'At least one of blockReference, socketIp, or searchQuery must be provided.' },
-);
-
-export type InvestigateBlockInput = z.infer<typeof InvestigateBlockInputSchema>;
+export const RawActivitiesInputSchema = RawActivitiesInputBaseSchema;
+export type RawActivitiesInput = z.infer<typeof RawActivitiesInputSchema>;
 
 const RawActivitySchema = z
     .object({
@@ -298,21 +285,13 @@ const RawActivitySchema = z
     })
     .passthrough();
 
-export const InvestigateBlockOutputSchema = z.object({
+export const RawActivitiesOutputSchema = z.object({
     count: z.number().describe('Total number of matching activity records in the requested time window.'),
     activities: z
         .array(RawActivitySchema)
         .describe(
-            'Sample of up to 20 matching raw activity records. Key fields for block analysis: ' +
+            'Sample of matching raw activity records. Key fields for analysis: ' +
                 'filterOriginReason (why it was filtered), ruleName (which rule triggered), ' +
                 'displayScore (risk score 0-100), incidentTypes (detected threats), trafficTags (traffic classification).',
         ),
-    metrics: z
-        .object({
-            results: z.record(z.string(), z.number()),
-            labels: z.record(z.string(), z.string()).optional(),
-        })
-        .passthrough()
-        .optional()
-        .describe('Aggregated traffic metrics for the matching traffic (total, blocked, legitimate, etc.).'),
 });

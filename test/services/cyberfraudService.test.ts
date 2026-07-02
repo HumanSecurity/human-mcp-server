@@ -278,6 +278,7 @@ describe('CyberfraudService', () => {
             const result = await service.getRawActivities({
                 startTime,
                 endTime,
+                searchQuery: [{ type: 'field', key: 'socketIp', operator: '=', value: '1.2.3.4' }],
                 limit: 20,
                 offset: 0,
             });
@@ -321,7 +322,11 @@ describe('CyberfraudService', () => {
         it('calls POST /activities/count and returns total', async () => {
             httpClient.request.resolves(mockApiResponse({ total: 42 }));
 
-            const result = await service.getRawActivitiesCount({ startTime, endTime });
+            const result = await service.getRawActivitiesCount({
+                startTime,
+                endTime,
+                searchQuery: [{ type: 'field', key: 'socketIp', operator: '=', value: '1.2.3.4' }],
+            });
 
             expect(httpClient.request.calledOnce).to.be.true;
             const [url] = httpClient.request.firstCall.args;
@@ -330,10 +335,11 @@ describe('CyberfraudService', () => {
         });
     });
 
-    describe('investigateBlock', () => {
+    describe('fetchRawActivities', () => {
         const now = new Date();
         const startTime = new Date(now.getTime() - 30 * 60 * 1000).toISOString();
         const endTime = now.toISOString();
+        const searchQuery = [{ type: 'field' as const, key: 'blockReference', operator: '=' as const, value: 'abc' }];
 
         function mockApiResponse(content: unknown) {
             return { json: async () => ({ result: true, message: 'success', content }), ok: true };
@@ -341,39 +347,39 @@ describe('CyberfraudService', () => {
 
         it('rejects when time range exceeds 4 hours', async () => {
             const wideStart = new Date(now.getTime() - 5 * 60 * 60 * 1000).toISOString();
-            await expect(
-                service.investigateBlock({ blockReference: 'abc', startTime: wideStart, endTime }),
-            ).to.be.rejectedWith('must not exceed 4 hours');
-        });
-
-        it('rejects when no criteria (blockReference, socketIp, or searchQuery) is provided', async () => {
-            await expect(service.investigateBlock({ startTime, endTime } as any)).to.be.rejectedWith(
-                'At least one of blockReference, socketIp, or searchQuery must be provided',
+            await expect(service.fetchRawActivities({ searchQuery, startTime: wideStart, endTime })).to.be.rejectedWith(
+                'must not exceed 4 hours',
             );
-            expect(httpClient.request.called).to.be.false;
         });
 
         it('orchestrates parallel calls and returns combined result', async () => {
             const activitiesContent = { results: [{ socketIp: '1.2.3.4' }] };
             const countContent = { total: 5 };
-            const metricsContent = { results: { total: 10, blocked: 5 }, labels: {} };
 
             httpClient.request.onCall(0).resolves(mockApiResponse(activitiesContent));
             httpClient.request.onCall(1).resolves(mockApiResponse(countContent));
-            httpClient.request.onCall(2).resolves(mockApiResponse(metricsContent));
 
-            const result = await service.investigateBlock({ blockReference: 'b5e0-b1d1', startTime, endTime });
+            const result = await service.fetchRawActivities({
+                searchQuery: [{ type: 'field', key: 'blockReference', operator: '=', value: 'b5e0-b1d1' }],
+                startTime,
+                endTime,
+            });
 
-            expect(httpClient.request.calledThrice).to.be.true;
+            expect(httpClient.request.calledTwice).to.be.true;
             expect(result.count).to.equal(5);
             expect(result.activities).to.deep.equal(activitiesContent.results);
-            expect(result.metrics).to.deep.equal(metricsContent);
         });
 
         it('forwards limit and offset to the raw activities request and defaults to 20/0', async () => {
             httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
 
-            await service.investigateBlock({ socketIp: '1.2.3.4', startTime, endTime, limit: 50, offset: 40 });
+            await service.fetchRawActivities({
+                searchQuery: [{ type: 'field', key: 'socketIp', operator: '=', value: '1.2.3.4' }],
+                startTime,
+                endTime,
+                limit: 50,
+                offset: 40,
+            });
 
             const activitiesCall = httpClient.request
                 .getCalls()
@@ -383,75 +389,19 @@ describe('CyberfraudService', () => {
             expect(activitiesCall!.args[1].body.offset).to.equal(40);
         });
 
-        it('builds searchQuery with blockReference only', async () => {
+        it('passes searchQuery through to both activities and count requests', async () => {
             httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
 
-            await service.investigateBlock({ blockReference: 'myblock', startTime, endTime }).catch(() => {});
+            const query = [
+                { type: 'field' as const, key: 'userEmail', operator: '=' as const, value: 'test@example.com' },
+            ];
+            await service.fetchRawActivities({ searchQuery: query, startTime, endTime }).catch(() => {});
 
-            const firstCall = httpClient.request.firstCall;
-            const body = firstCall?.args[1]?.body;
-            expect(body?.searchQuery).to.deep.include({
-                type: 'field',
-                key: 'blockReference',
-                operator: '=',
-                value: 'myblock',
-            });
-        });
-
-        it('builds searchQuery with OR when both blockReference and socketIp provided', async () => {
-            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
-
-            await service
-                .investigateBlock({
-                    blockReference: 'myblock',
-                    socketIp: '1.2.3.4',
-                    startTime,
-                    endTime,
-                })
-                .catch(() => {});
-
-            const firstCall = httpClient.request.firstCall;
-            const sq = firstCall?.args[1]?.body?.searchQuery;
-            const operatorItem = sq?.find((item: any) => item.type === 'operator' && item.operator === 'OR');
-            expect(operatorItem).to.exist;
-        });
-
-        it('accepts searchQuery only (no blockReference or socketIp)', async () => {
-            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
-
-            await service
-                .investigateBlock({
-                    searchQuery: [{ type: 'field', key: 'userEmail', operator: '=', value: 'test@example.com' }],
-                    startTime,
-                    endTime,
-                })
-                .catch(() => {});
-
-            const firstCall = httpClient.request.firstCall;
-            const sq = firstCall?.args[1]?.body?.searchQuery;
-            expect(sq).to.deep.equal([{ type: 'field', key: 'userEmail', operator: '=', value: 'test@example.com' }]);
-        });
-
-        it('merges shortcut fields with explicit searchQuery using AND', async () => {
-            httpClient.request.resolves(mockApiResponse({ results: [], total: 0 }));
-
-            await service
-                .investigateBlock({
-                    socketIp: '1.2.3.4',
-                    searchQuery: [{ type: 'field', key: 'displayScore', operator: '>=', value: 80 }],
-                    startTime,
-                    endTime,
-                })
-                .catch(() => {});
-
-            const firstCall = httpClient.request.firstCall;
-            const sq = firstCall?.args[1]?.body?.searchQuery;
-            const andOp = sq?.find((item: any) => item.type === 'operator' && item.operator === 'AND');
-            expect(andOp).to.exist;
-            const ipItem = sq?.find((item: any) => item.key === 'socketIp');
-            expect(ipItem).to.exist;
-            const scoreItem = sq?.find((item: any) => item.key === 'displayScore');
-            expect(scoreItem).to.exist;
+            const calls = httpClient.request.getCalls();
+            expect(calls).to.have.lengthOf(2);
+            for (const call of calls) {
+                expect(call.args[1].body.searchQuery).to.deep.equal(query);
+            }
         });
     });
 });

@@ -11,14 +11,8 @@ import type {
     CyberfraudCustomRulesResponse,
     TrafficDataInput,
     TrafficDataResponse,
-    InvestigateBlockInput,
+    RawActivitiesInput,
 } from '../types/cyberfraud';
-
-type InvestigateBlockOutput = {
-    count: number;
-    activities: Record<string, unknown>[];
-    metrics?: { results: Record<string, number>; labels?: Record<string, string> };
-};
 
 const API_BASE = `${HUMAN_API_BASE}/cyberfraud`;
 const TRAFFIC_DATA_BASE = HUMAN_TRAFFIC_API_BASE;
@@ -185,8 +179,7 @@ export class CyberfraudService {
     }
 
     async getRawActivities(
-        params: Pick<InvestigateBlockInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters'> & {
-            searchQuery?: TrafficDataInput['searchQuery'];
+        params: Pick<RawActivitiesInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters' | 'searchQuery'> & {
             limit?: number;
             offset?: number;
         },
@@ -200,7 +193,7 @@ export class CyberfraudService {
                 params.trafficSource && params.trafficSource.length > 0 ? params.trafficSource : ['web', 'mobile'],
         };
         if (params.filters) body.filters = params.filters;
-        if (params.searchQuery?.length) body.searchQuery = params.searchQuery;
+        body.searchQuery = params.searchQuery;
         if (params.limit !== undefined) body.limit = params.limit;
         if (params.offset !== undefined) body.offset = params.offset;
         const res = await this.http.request(url, { method: 'POST', body });
@@ -209,9 +202,7 @@ export class CyberfraudService {
     }
 
     async getRawActivitiesCount(
-        params: Pick<InvestigateBlockInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters'> & {
-            searchQuery?: TrafficDataInput['searchQuery'];
-        },
+        params: Pick<RawActivitiesInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters' | 'searchQuery'>,
     ): Promise<number> {
         const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
         const from = Math.floor(new Date(clamped.startTime).getTime() / 1000);
@@ -222,77 +213,31 @@ export class CyberfraudService {
                 params.trafficSource && params.trafficSource.length > 0 ? params.trafficSource : ['web', 'mobile'],
         };
         if (params.filters) body.filters = params.filters;
-        if (params.searchQuery?.length) body.searchQuery = params.searchQuery;
+        body.searchQuery = params.searchQuery;
         const res = await this.http.request(url, { method: 'POST', body });
         const content = await parseApiResponse<{ total: number }>(res);
         return content.total;
     }
 
-    async investigateBlock(params: InvestigateBlockInput): Promise<InvestigateBlockOutput> {
-        // Guard the "at least one criterion" contract here: the tool exposes the un-refined
-        // base schema to the MCP SDK, so the refinement on InvestigateBlockInputSchema is not
-        // applied at the boundary. Without this, a criteria-less call would fetch all unfiltered
-        // traffic in the window (an expensive, meaningless query).
-        const hasCriteria =
-            !!params.blockReference ||
-            !!params.socketIp ||
-            (params.searchQuery !== undefined && params.searchQuery.length > 0);
-        if (!hasCriteria) {
-            throw new Error(
-                'At least one of blockReference, socketIp, or searchQuery must be provided to investigate traffic.',
-            );
-        }
-
+    async fetchRawActivities(
+        params: RawActivitiesInput,
+    ): Promise<{ count: number; activities: Record<string, unknown>[] }> {
         const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
         enforceInvestigateTimeRange(clamped.startTime, clamped.endTime);
-
-        const shortcutItems: NonNullable<TrafficDataInput['searchQuery']> = [];
-        if (params.blockReference) {
-            shortcutItems.push({ type: 'field', key: 'blockReference', operator: '=', value: params.blockReference });
-        }
-        if (params.socketIp) {
-            if (shortcutItems.length > 0) {
-                shortcutItems.push({ type: 'operator', operator: 'OR' });
-            }
-            shortcutItems.push({ type: 'field', key: 'socketIp', operator: '=', value: params.socketIp });
-        }
-
-        let searchQuery: NonNullable<TrafficDataInput['searchQuery']>;
-        const explicitQuery = params.searchQuery ?? [];
-        if (shortcutItems.length > 0 && explicitQuery.length > 0) {
-            searchQuery = [
-                { type: 'operator', operator: '(' as const },
-                ...shortcutItems,
-                { type: 'operator', operator: ')' as const },
-                { type: 'operator', operator: 'AND' as const },
-                { type: 'operator', operator: '(' as const },
-                ...explicitQuery,
-                { type: 'operator', operator: ')' as const },
-            ];
-        } else if (shortcutItems.length > 0) {
-            searchQuery = shortcutItems;
-        } else {
-            searchQuery = explicitQuery;
-        }
 
         const baseParams = {
             startTime: clamped.startTime,
             endTime: clamped.endTime,
             trafficSource: params.trafficSource,
             filters: params.filters,
-            searchQuery,
+            searchQuery: params.searchQuery,
         };
 
-        const [activities, count, metricsData] = await Promise.all([
+        const [activities, count] = await Promise.all([
             this.getRawActivities({ ...baseParams, limit: params.limit ?? 20, offset: params.offset ?? 0 }),
             this.getRawActivitiesCount(baseParams),
-            this.getTrafficData({ ...baseParams, metrics: true }),
         ]);
 
-        return {
-            count,
-            activities,
-            metrics: metricsData.metrics,
-        };
+        return { count, activities };
     }
 }
