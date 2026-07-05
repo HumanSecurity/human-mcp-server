@@ -11,6 +11,7 @@ import type {
     CyberfraudCustomRulesResponse,
     TrafficDataInput,
     TrafficDataResponse,
+    RawActivitiesInput,
 } from '../types/cyberfraud';
 
 const API_BASE = `${HUMAN_API_BASE}/cyberfraud`;
@@ -49,7 +50,24 @@ function buildBaseBody(params: TrafficDataInput) {
     if (params.filters) {
         body.filters = params.filters;
     }
+    if (params.searchQuery && params.searchQuery.length > 0) {
+        body.searchQuery = params.searchQuery;
+    }
     return body;
+}
+
+const MAX_INVESTIGATE_RANGE_MS = 4 * 60 * 60 * 1000; // 4 hours
+
+function enforceInvestigateTimeRange(startTime: string, endTime: string): void {
+    const start = new Date(startTime).getTime();
+    const end = new Date(endTime).getTime();
+    const diffMs = end - start;
+    if (diffMs > MAX_INVESTIGATE_RANGE_MS) {
+        throw new Error(
+            `The investigation time range must not exceed 4 hours (raw activity queries are expensive). ` +
+                `Provided range: ${Math.round(diffMs / 60000)} minutes. Please narrow the window to at most 240 minutes.`,
+        );
+    }
 }
 
 async function parseApiResponse<T>(res: { json: () => Promise<unknown> }): Promise<T> {
@@ -158,5 +176,68 @@ export class CyberfraudService {
         }
 
         return response;
+    }
+
+    async getRawActivities(
+        params: Pick<RawActivitiesInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters' | 'searchQuery'> & {
+            limit?: number;
+            offset?: number;
+        },
+    ): Promise<Record<string, unknown>[]> {
+        const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
+        const from = Math.floor(new Date(clamped.startTime).getTime() / 1000);
+        const to = Math.floor(new Date(clamped.endTime).getTime() / 1000);
+        const url = buildTrafficDataUrl('/activities', from, to);
+        const body: Record<string, unknown> = {
+            trafficSource:
+                params.trafficSource && params.trafficSource.length > 0 ? params.trafficSource : ['web', 'mobile'],
+        };
+        if (params.filters) body.filters = params.filters;
+        body.searchQuery = params.searchQuery;
+        if (params.limit !== undefined) body.limit = params.limit;
+        if (params.offset !== undefined) body.offset = params.offset;
+        const res = await this.http.request(url, { method: 'POST', body });
+        const content = await parseApiResponse<{ results: Record<string, unknown>[] }>(res);
+        return content.results;
+    }
+
+    async getRawActivitiesCount(
+        params: Pick<RawActivitiesInput, 'startTime' | 'endTime' | 'trafficSource' | 'filters' | 'searchQuery'>,
+    ): Promise<number> {
+        const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
+        const from = Math.floor(new Date(clamped.startTime).getTime() / 1000);
+        const to = Math.floor(new Date(clamped.endTime).getTime() / 1000);
+        const url = buildTrafficDataUrl('/activities/count', from, to);
+        const body: Record<string, unknown> = {
+            trafficSource:
+                params.trafficSource && params.trafficSource.length > 0 ? params.trafficSource : ['web', 'mobile'],
+        };
+        if (params.filters) body.filters = params.filters;
+        body.searchQuery = params.searchQuery;
+        const res = await this.http.request(url, { method: 'POST', body });
+        const content = await parseApiResponse<{ total: number }>(res);
+        return content.total;
+    }
+
+    async fetchRawActivities(
+        params: RawActivitiesInput,
+    ): Promise<{ count: number; activities: Record<string, unknown>[] }> {
+        const clamped = clampAttackReportingTimes(params.startTime, params.endTime);
+        enforceInvestigateTimeRange(clamped.startTime, clamped.endTime);
+
+        const baseParams = {
+            startTime: clamped.startTime,
+            endTime: clamped.endTime,
+            trafficSource: params.trafficSource,
+            filters: params.filters,
+            searchQuery: params.searchQuery,
+        };
+
+        const [activities, count] = await Promise.all([
+            this.getRawActivities({ ...baseParams, limit: params.limit ?? 20, offset: params.offset ?? 0 }),
+            this.getRawActivitiesCount(baseParams),
+        ]);
+
+        return { count, activities };
     }
 }

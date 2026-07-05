@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.2.0] - 2026-07-02
+
+### Added
+
+* New `human_get_raw_activities` tool: given a Block ID / Reference ID or an IP address and a short time window (max 4 hours), returns matching raw activity records, the total count, and aggregated traffic metrics to help analyze why traffic is being blocked. Supports `limit` (1-100, default 20) and `offset` for paginating through matching records (sorted newest-first). Key analysis fields surfaced: `filterOriginReason`, `ruleName`, `displayScore`, `incidentTypes`, `trafficTags`, and `blockReference`.
+* `searchQuery` support across all traffic data endpoints (`/overtime`, `/metrics`, `/tops/*`) for field-level filtering with boolean logic (AND, OR, NOT, parentheses). Available filter fields include: `socketIp`, `blockReference`, `displayScore`, `domain`, `path`, `filterOriginReason`, `ruleName`, `uaServer`, `knownBot`, `userEmail`, `httpMethod`, `httpStatusCode`, and more.
+
+### Changed
+
+* `human_get_traffic_data` tool description updated to document the new `searchQuery` capability, all available filter field keys, and a pointer to `human_get_raw_activities` for request-level records.
+
 ## [1.1.1] - 2026-07-02
 
 ### Fixed
