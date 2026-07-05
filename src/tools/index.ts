@@ -9,6 +9,7 @@ import { registerCodeDefenderGetHeaderInventory } from './codeDefenderGetHeaderI
 import type { CyberfraudService } from '../services/cyberfraudService';
 import type { CodeDefenderService } from '../services/codeDefenderService';
 import { registerCyberfraudGetTrafficData } from './getTrafficData';
+import { registerGetRawActivities } from './getRawActivities';
 
 export function registerTools(
     server: McpServer,
@@ -24,6 +25,7 @@ export function registerTools(
         registerCyberfraudGetCustomRules(server, services.cyberfraudService);
         registerCyberfraudGetAccountInfo(server, services.cyberfraudService);
         registerCyberfraudGetTrafficData(server, services.cyberfraudService);
+        registerGetRawActivities(server, services.cyberfraudService);
     }
 
     // Register Code Defender tools if service is available
