@@ -94,6 +94,67 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 }
 ```
 
+## 🌐 Running over HTTP (Streamable HTTP transport)
+
+By default the server communicates over **stdio** — the mode used by Claude Desktop, Cursor, and most MCP clients. An alternative **HTTP** transport is available for clients that need longer per-call timeouts (e.g. Google ADK, which caps stdio subprocesses at ~5 s) or that cannot manage a child process at all.
+
+### When to use HTTP vs. stdio
+
+| | stdio | HTTP |
+|---|---|---|
+| Claude Desktop / Cursor | ✅ default | not needed |
+| Google ADK / sre-ops-bot | ❌ 5 s timeout | ✅ use HTTP |
+| Kubernetes sidecar | possible | ✅ preferred |
+
+### Env vars
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `MCP_TRANSPORT` | `stdio` | Set to `http` to enable HTTP mode; any other value exits with an error |
+| `PORT` | `8080` | HTTP listen port |
+| `MCP_HTTP_HOST` | `127.0.0.1` | Bind address. Use `0.0.0.0` for K8s pod liveness probes (see security note below) |
+| `MCP_HTTP_ALLOWED_HOSTS` | `127.0.0.1` | Comma-separated list of allowed `Host` header values (DNS-rebinding protection) |
+| `MCP_HTTP_ALLOWED_ORIGINS` | *(none)* | Comma-separated list of allowed `Origin` header values; omit for non-browser clients |
+
+### Security note
+
+HTTP mode has **no built-in authentication**. Use it only on a trusted network or as a sidecar running on localhost. If you set `MCP_HTTP_HOST=0.0.0.0` to allow Kubernetes httpGet liveness probes, set `MCP_HTTP_ALLOWED_HOSTS` to the pod's expected hostname to preserve DNS-rebinding protection.
+
+### Running with Docker (HTTP mode)
+
+```bash
+docker run --rm -p 8080:8080 \
+  -e MCP_TRANSPORT=http \
+  -e MCP_HTTP_HOST=0.0.0.0 \
+  -e HUMAN_CYBERFRAUD_API_TOKEN=<value> \
+  -e HUMAN_CODE_DEFENDER_API_TOKEN=<value> \
+  us-docker.pkg.dev/hmn-registry-public/containers/human-mcp-server:latest
+```
+
+Verify it's up:
+
+```bash
+curl -s http://localhost:8080/health
+# {"status":"ok"}
+```
+
+### MCP client config (HTTP)
+
+```json
+{
+  "mcpServers": {
+    "human-security": {
+      "type": "http",
+      "url": "http://127.0.0.1:8080/mcp",
+      "env": {
+        "HUMAN_CYBERFRAUD_API_TOKEN": "your-cyberfraud-token",
+        "HUMAN_CODE_DEFENDER_API_TOKEN": "your-code-defender-token"
+      }
+    }
+  }
+}
+```
+
 ### Optional Configuration
 - **`HUMAN_API_HOST`**: Use a different API endpoint (default: `api.humansecurity.com`)
 - **`HUMAN_API_VERSION`**: Specify API version (default: `v1`)

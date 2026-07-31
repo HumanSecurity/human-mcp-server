@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+* HTTP (Streamable HTTP) transport mode via `MCP_TRANSPORT=http` environment variable, enabling clients with long per-call timeouts (e.g. Google ADK) to use the server without subprocess management.
+* `GET /health` endpoint returns `{"status":"ok"}` for container liveness probes.
+* `PORT`, `MCP_HTTP_HOST`, `MCP_HTTP_ALLOWED_HOSTS`, and `MCP_HTTP_ALLOWED_ORIGINS` env vars for HTTP transport configuration.
+* DNS-rebinding protection (`enableDnsRebindingProtection`) enabled by default in HTTP mode.
+* Per-request stateless isolation in HTTP mode — each `POST /mcp` gets a fresh `McpServer` instance so concurrent callers never share state.
+
 ## [1.2.0] - 2026-07-02
 
 ### Added
