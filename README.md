@@ -120,6 +120,43 @@ To use Docker from your MCP client config (e.g., Cursor or Claude Desktop), repl
 - **Account Information**: Individual account security analysis and incident tracking
 - **Custom Rules**: Security policy management and effectiveness analysis
 
+#### Detailed Cyberfraud tools
+
+| Tool | Purpose | Key inputs |
+| --- | --- | --- |
+| `human_get_attack_reporting_overtime` | Analyze attack activity over time using five-minute intervals. Useful for timelines, trends, volume changes, cluster persistence, and SOC monitoring. | `startTime`, `endTime`; optional `threatTypes`, `trafficSources`, `trafficTypes` |
+| `human_get_attack_reporting_overview` | Discover and investigate attack clusters, including attribution, attack paths, threat indicators, sophistication, and targeted domains. | Optional time and threat filters; `clusterId`; `page`, `pageSize` (maximum 50) |
+| `human_get_traffic_data` | Analyze traffic metrics, trends, and ranked top values. Supports combined metrics, overtime, and tops views. | `startTime`, `endTime`; at least one of `metrics`, `overtime`, or `tops` |
+| `human_get_raw_activities` | Retrieve individual request-level records for forensic investigation by IP, block reference, email, domain, path, VID, or other fields. | Required non-empty `searchQuery`; time window of at most four hours; optional `limit`, `offset` |
+| `human_get_custom_rules` | Retrieve the complete custom security rule inventory, including priorities, conditions, actions, status, descriptions, and identifiers. | No inputs |
+
+### Recommended workflow
+
+1. Start with `human_get_attack_reporting_overview` to discover active attack clusters.
+2. Use `human_get_attack_reporting_overtime` to understand when an attack started, peaked, and declined.
+3. Use `human_get_traffic_data` for totals, trends, and top paths or incident types.
+4. Use `human_get_raw_activities` to investigate a specific IP, block reference, domain, email, or request.
+5. Use `human_get_custom_rules` to understand the mitigation policies affecting traffic.
+
+Example `human_get_raw_activities` query:
+
+```json
+{
+  "searchQuery": [
+    { "type": "field", "key": "displayScore", "operator": ">=", "value": 80 }
+  ],
+  "startTime": "2025-06-23T10:00:00Z",
+  "endTime": "2025-06-23T11:00:00Z"
+}
+```
+
+### Important constraints
+
+- Attack reporting and traffic-analysis time ranges must be within the last two weeks.
+- Raw activity queries must cover no more than four hours.
+- Do not send empty arrays such as `"searchQuery": []`; omit optional arrays or provide at least one valid item.
+- Filters can legitimately return zero results; this does not necessarily indicate an error.
+
 ### Code Defender Security
 - **Security Incidents**: Client-side attack detection and investigation
 - **Script Inventory**: First- and third-party script monitoring and PCI compliance
@@ -206,4 +243,3 @@ Expected output: `RESULTS: 25 passed, 0 failed`.
 
 ## 📄 License
 MIT
-
