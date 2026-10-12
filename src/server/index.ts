@@ -6,6 +6,7 @@ import { HttpClient } from '../utils/httpClient';
 import { CyberfraudService } from '../services/cyberfraudService';
 import { CodeDefenderService } from '../services/codeDefenderService';
 import { MCP_VERSION } from '../utils/constants';
+import { stripToolSchemaDialect } from '../utils/jsonSchemaDialect';
 
 export function createServer() {
     const server = new McpServer(
@@ -49,7 +50,7 @@ export function createServer() {
 
     return {
         start: () => {
-            const transport = new StdioServerTransport();
+            const transport = stripToolSchemaDialect(new StdioServerTransport());
             server.connect(transport).then(() => {
                 console.error('MCP server started...');
             });

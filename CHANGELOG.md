@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+* Fixed tool schemas being rejected by JSON Schema 2020-12 clients
+
 ## [1.2.0] - 2026-07-02
 
 ### Added
